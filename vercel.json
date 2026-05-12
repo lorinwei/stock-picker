@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "frontend/dist/**", "use": "@vercel/static" },
+    { "src": "api.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api.js" },
+    { "src": "/assets/(.*)", "dest": "/frontend/dist/assets/$1" },
+    { "src": "/picker", "dest": "/frontend/dist/index.html" },
+    { "src": "/portfolio", "dest": "/frontend/dist/index.html" },
+    { "src": "/chat", "dest": "/frontend/dist/index.html" },
+    { "src": "/market", "dest": "/frontend/dist/index.html" },
+    { "src": "/backtest", "dest": "/frontend/dist/index.html" },
+    { "src": "/(.*)", "dest": "/frontend/dist/$1", "status": 200 },
+    { "src": "/", "dest": "/frontend/dist/index.html" }
+  ]
+}

@@ -1,0 +1,13 @@
+name = "stockmind-api"
+main = "worker.js"
+compatibility_date = "2026-05-07"
+account_id = "6a36623f8a4af08674901870cb008523"
+
+[vars]
+ENV = "production"
+
+# 首次部署前需手动创建KV并替换id
+# 创建：wrangler kv:namespace create "STOCKMIND_KV"
+# [[kv_namespaces]]
+# binding = "STOCKMIND_KV"
+# id = "YOUR_KV_ID"

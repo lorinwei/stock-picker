@@ -1,0 +1,36 @@
+app:
+  name: StockMind
+  version: 2.0.0
+  debug: true
+  host: 0.0.0.0
+  port: 8000
+
+database:
+  path: /root/stock-picker/data/stockmind.db
+
+portfolio:
+  initial_cash: 100000.0  # 初始资金10万
+
+ai:
+  # MiniMax API配置（必填）
+  minimax_api_key: "YOUR_MINIMAX_API_KEY_HERE"
+  minimax_group_id: "YOUR_GROUP_ID_HERE"
+
+notification:
+  # 飞书Webhook（选填，不填则不推送）
+  feishu_webhook: "https://open.feishu.cn/open-apis/bot/v2/hook/XXXXX"
+
+logging:
+  level: INFO
+  file: /root/stock-picker/data/logs/app.log
+  rotation_days: 30
+
+picker:
+  # 选股策略参数
+  pe_min: 5
+  pe_max: 50
+  roe_min: 8.0
+  stop_loss_pct: -8.0
+  take_profit_pct: 20.0
+  max_positions: 5
+  single_position_pct: 20.0
