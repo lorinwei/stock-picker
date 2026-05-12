@@ -9,7 +9,7 @@ const config = ref({
   stockCode: '600519',
   mkt: '1',
   startDate: '2024-01-01',
-  endDate: new Date().toISOString().split('T')[0],
+  endDate: '2025-12-31',
   initialCapital: 100000,
   strategyType: 'momentum'
 })

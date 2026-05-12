@@ -38,7 +38,7 @@
             <span class="tsc-name">{{ s.name }}</span>
             <span class="tsc-code">{{ s.code }}</span>
             <span class="tsc-industry">{{ s.industry }}</span>
-            <span class="score-badge" :class="s.score >= 85 ? 'gold' : ''">{{ s.score }}</span>
+            <span class="score-badge" :class="s.score?.total >= 55 ? 'gold' : ''">{{ s.score?.total || s.score }}</span>
           </div>
           <span class="tsc-change" :class="s.change >= 0 ? 'up' : 'down'">
             {{ s.change >= 0 ? '+' : '' }}{{ s.change }}%
@@ -96,7 +96,7 @@
             </div>
           </div>
           <div class="ssc-right">
-            <span class="score-badge" :class="s.score >= 80 ? 'gold' : ''">{{ s.score }}</span>
+            <span class="score-badge" :class="(s.score?.total || s.score) >= 55 ? 'gold' : ''">{{ s.score?.total || s.score }}</span>
             <span class="ssc-change" :class="s.change >= 0 ? 'up' : 'down'">
               {{ s.change >= 0 ? '+' : '' }}{{ s.change }}%
             </span>
@@ -128,8 +128,8 @@ const categories = [
 
 const pool = computed(() => stockStore.stockPool)
 const total = computed(() => pool.value?.total || 0)
-const topStocks = computed(() => (pool.value?.items || []).filter((s: any) => s.score >= 75).slice(0, 3))
-const subStocks = computed(() => (pool.value?.items || []).filter((s: any) => s.score < 75))
+const topStocks = computed(() => (pool.value?.items || []).filter((s: any) => s.score?.total >= 55).slice(0, 3))
+const subStocks = computed(() => (pool.value?.items || []).filter((s: any) => !s.score?.total || s.score?.total < 55))
 
 async function loadPool() {
   loading.value = true
