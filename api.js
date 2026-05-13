@@ -86,7 +86,7 @@ const CrownPrince = {
       const parts = line.split('~');
       if (parts.length < 50 || !parts[3]) continue;
 
-      const sym = parts[0].split('_')[1]?.replace(/"/g, '') || '';
+      const sym = parts[0].split('_')[1]?.replace(/"/g, '').replace(/=\d+$/, '') || '';
       const code = sym.replace(/^(sh|sz)/, '');
       const mktKey = sym.startsWith('sh') ? '1' : '0';
       const poolInfo = STOCK_POOL.find(s => s.code === code && s.mkt === mktKey) || {};
@@ -566,7 +566,7 @@ const ZhongshuSheng = {
       const target   = +(q.price * 1.08).toFixed(2);
 
       return {
-        code: q.code, name: q.name, industry: q.industry,
+        code: q.code.replace(/=\d+$/, ''), name: q.name, industry: q.industry,
         price: q.price, change: q.change, changePct: q.changePct,
         volume: q.volume, amount: q.amount, turnover: q.turnover,
         marketCap: q.marketCap, mkt: q.mkt,
@@ -705,7 +705,7 @@ const ZhongshuSheng = {
     if (!main) return null;
 
     const mainPick = {
-      name: main.name, code: main.code, industry: main.industry,
+      name: main.name, code: (main.code || '').toString().replace(/=\d+$/, ''), industry: main.industry,
       score: main.score.total, type: main.score.total >= 75 ? 'MAIN' : 'WATCH',
       scoreBreakdown: main.score.breakdown,
       buyPrice: main.price,
@@ -718,7 +718,7 @@ const ZhongshuSheng = {
     };
 
     const alternatives = ranked.slice(1, 4).map(s => ({
-      name: s.name, code: s.code, industry: s.industry,
+      name: s.name, code: (s.code || '').toString().replace(/=\d+$/, ''), industry: s.industry,
       score: s.score.total, scoreBreakdown: s.score.breakdown,
       change: s.changePct, flow: s.flow,
       reasons: s.reasons.slice(0, 2),
