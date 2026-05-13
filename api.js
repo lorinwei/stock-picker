@@ -995,6 +995,40 @@ module.exports = function handler(req, res) {
     else if (path === '/api/strategies') { json(Liubu.getStrategies()); }
     else if (path === '/api/rankings')    { json(Liubu.getRankings()); }
 
+    // 尚书省：持仓
+    else if (path === '/api/portfolio' && req.method === 'GET') {
+      handleAsync(async () => {
+        const pf = await ShangshuSheng.getPortfolio();
+        // 标准化字段适配前端 PortfolioView.vue
+        const positions = pf.positions.map(p => ({
+          id: p.id, code: p.code, name: p.name,
+          buyPrice: p.cost ?? p.buyPrice ?? 0,
+          currentPrice: p.currentPrice ?? 0,
+          profit: p.profit, profitRate: p.profitPct,
+          change: p.profitPct / 100,
+          shares: p.shares, days: Math.floor((Date.now() - new Date(p.buyDate)) / 86400000),
+          stopPrice: p.stopLoss,
+          statusLabel: p.riskLevel === 'danger' ? '🔴 止损' : p.riskLevel === 'warning' ? '🟡 观察' : '🟢 正常',
+          statusClass: p.riskLevel === 'danger' ? 'status-danger' : p.riskLevel === 'warning' ? 'status-warn' : 'status-ok',
+          aiAdvice: p.riskAction === '建议止损' ? '建议止损出局' : p.riskAction === '观察' ? '建议减仓' : '持有',
+          industry: p.industry,
+        }));
+        return { positions, totalValue: pf.totalValue, totalCost: pf.totalCost, totalProfit: pf.totalProfit, profitPercent: pf.profitPct, cash: pf.cash, availableCash: pf.availableCash, maxPositions: pf.maxPositions };
+      });
+    }
+    else if (path === '/api/portfolio' && req.method === 'POST') {
+      const { code, mkt, name, shares, buyPrice } = body;
+      const pos = ShangshuSheng.addPosition(code, mkt, name, shares, buyPrice);
+      json({ success: true, position: pos });
+    }
+    else if (path.startsWith('/api/portfolio/') && path.endsWith('/sell') && req.method === 'POST') {
+      const id = path.split('/')[3];
+      const { sellPrice } = body;
+      const pos = ShangshuSheng.sellPosition(id, sellPrice);
+      if (!pos) { err('持仓不存在', 404); return; }
+      json({ success: true, position: pos });
+    }
+
     // AI
     else if (path === '/api/ai/chat' && req.method === 'POST') {
       handleAsync(() => AIModule.reply(body.message || '').then(reply => ({ reply })));
