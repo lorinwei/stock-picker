@@ -1,11 +1,27 @@
 /**
- * StockMind V2 API - 三省六部架构 · 真实数据版
- * 数据源：东方财富 Eastmoney 公开接口
- * 防限流：多endpoint + 批量请求 + 多级缓存 + 过期续供
+ * StockMind V3 API - 三层数据架构
+ * 
+ * 【实时层】→ 腾讯 qt.gtimg.cn（毫秒响应）
+ *   - 实时行情（价格/涨跌幅/成交量/成交额）
+ *   - 资金流向（外盘/内盘 代理指标）
+ *   - 大盘指数
+ * 
+ * 【实时层】→ 新浪财经 K线（稳定）
+ *   - 日K/周K/月K/分钟K
+ *   - 技术指标计算
+ * 
+ * 【日更层】→ /data/*.json 缓存（预计算）
+ *   - akshare 财务指标（季度更新）
+ *   - akshare 资金流（收盘后日更）
+ *   - akshare 龙虎榜（每日更新）
+ *   - 人工精选数据
+ * 
  * 太子院(数据) → 中书省(策略) → 门下省(风控) → 尚书省(执行)
  */
 
-// 监控股票池
+// ============================================================
+// 股票池
+// ============================================================
 const STOCK_POOL = [
   { code: '600519', name: '贵州茅台',   mkt: '1', industry: '白酒' },
   { code: '000858', name: '五粮液',     mkt: '0', industry: '白酒' },
@@ -29,17 +45,17 @@ const STOCK_POOL = [
   { code: '300015', name: '爱尔眼科',   mkt: '0', industry: '医疗' },
 ];
 
-// 太子院 CrownPrince - 真实数据层（腾讯+新浪双源）
+// ============================================================
+// 太子院 CrownPrince - 实时数据层（腾讯 + 新浪）
 // ============================================================
 const CrownPrince = {
   _cache: {},
-  _refreshPromises: {},
 
   TTL: {
-    quote:   60 * 1000,
-    kline:   30 * 60 * 1000,
-    overview: 5 * 60 * 1000,
-    sector:  10 * 60 * 1000,
+    quote:    30 * 1000,   // 行情30秒缓存
+    kline:    30 * 60 * 1000, // K线30分钟
+    overview: 60 * 1000,    // 大盘1分钟
+    fundflow: 5 * 60 * 1000, // 资金流5分钟
   },
 
   isCacheValid(key) {
@@ -48,9 +64,11 @@ const CrownPrince = {
     return (Date.now() - c.ts) < (c.ttl || this.TTL.quote);
   },
   getCache(key) { return this._cache[key]?.data; },
-  setCache(key, data, ttl) { this._cache[key] = { data, ts: Date.now(), ttl }; },
+  setCache(key, data, ttl) {
+    this._cache[key] = { data, ts: Date.now(), ttl };
+  },
 
-  // ---- 腾讯行情批量接口（主力数据源，一次拉全部）----
+  // ---- 腾讯行情批量接口（含外盘/内盘资金流）----
   async _fetchTencentBatch() {
     const symbols = STOCK_POOL.map(s => `${s.mkt === '1' ? 'sh' : 'sz'}${s.code}`).join(',');
     const url = `https://qt.gtimg.cn/q=${symbols}`;
@@ -61,38 +79,63 @@ const CrownPrince = {
     const raw = await res.text();
     const results = [];
     const lines = raw.trim().split('\n').filter(l => l);
+
     for (const line of lines) {
       const parts = line.split('~');
       if (parts.length < 50 || !parts[3]) continue;
+
       const sym = parts[0].split('_')[1] || '';
       const code = sym.replace(/^(sh|sz)/, '');
       const mktKey = sym.startsWith('sh') ? '1' : '0';
       const poolInfo = STOCK_POOL.find(s => s.code === code && s.mkt === mktKey) || {};
+
+      // 外盘/内盘（资金流向代理）
+      const outerDisk = parseFloat(parts[6]) || 0;  // 外盘（主动买）
+      const innerDisk = parseFloat(parts[7]) || 0;  // 内盘（主动卖）
+      const totalDisk = outerDisk + innerDisk;
+      const netFlowRatio = totalDisk > 0 ? ((outerDisk - innerDisk) / totalDisk * 100).toFixed(1) : '0.0';
+      // 资金流方向判断
+      let flowDirection;
+      if (outerDisk - innerDisk > 50)       flowDirection = 'strong_buy';   // 大单买入
+      else if (outerDisk > innerDisk)        flowDirection = 'mild_buy';     // 小幅买入
+      else if (innerDisk - outerDisk > 50)  flowDirection = 'strong_sell';  // 大单卖出
+      else                                  flowDirection = 'mild_sell';    // 小幅卖出
+
       results.push({
         code,
         mkt: mktKey,
         name: parts[1] || poolInfo.name || code,
         industry: poolInfo.industry || '',
-        price: parseFloat(parts[3]) || 0,
-        open: parseFloat(parts[4]) || 0,
-        high: parseFloat(parts[33]) || 0,
-        low: parseFloat(parts[34]) || 0,
-        volume: parseInt(parts[36]) * 10000 || 0,      // 万股→股
-        amount: parseFloat(parts[37]) * 10000 || 0,    // 万元→元
-        turnover: parseFloat(parts[38]) || 0,         // 换手率%
-        change: parseFloat(parts[31]) || 0,           // 涨跌额
-        changePct: parseFloat(parts[32]) || 0,        // 涨跌幅%
-        marketCap: parseFloat(parts[44]) * 1e8 || 0,  // 亿元→元
-        pe: parseFloat(parts[39]) || 0,
-        status: '正常'
+        // 价格
+        price:      parseFloat(parts[3])  || 0,
+        open:       parseFloat(parts[4])  || 0,
+        high:       parseFloat(parts[33]) || 0,
+        low:        parseFloat(parts[34]) || 0,
+        prevClose:  parseFloat(parts[4])  || 0,
+        // 涨跌
+        change:     parseFloat(parts[31]) || 0,
+        changePct:  parseFloat(parts[32]) || 0,
+        // 成交量
+        volume:     (parseFloat(parts[36]) || 0) * 100,     // 手→股
+        amount:     (parseFloat(parts[37]) || 0) * 10000,  // 万元→元
+        turnover:   parseFloat(parts[38]) || 0,
+        // 资金流（外盘/内盘代理）
+        outerDisk,        // 外盘（主动买入手数）
+        innerDisk,        // 内盘（主动卖出手数）
+        netFlowRatio: parseFloat(netFlowRatio), // 净买卖比 0-100
+        flowDirection,    // strong_buy/mild_buy/mild_sell/strong_sell
+        // 估值
+        pe:         parseFloat(parts[39]) || 0,
+        marketCap:  (parseFloat(parts[44]) || 0) * 1e8,     // 亿元→元
+        status:     '正常'
       });
     }
     return results;
   },
 
-  // ---- 批量行情（自动降级：腾讯→演示数据）----
+  // ---- 批量行情 ----
   async getBatchQuotes() {
-    const cacheKey = 'batch_quotes';
+    const cacheKey = 'batch_quotes_v3';
     if (this.isCacheValid(cacheKey)) return this.getCache(cacheKey);
     try {
       const results = await this._fetchTencentBatch();
@@ -101,7 +144,6 @@ const CrownPrince = {
         return results;
       }
     } catch (e) { console.warn('腾讯行情失败:', e.message); }
-    // 降级到演示数据（确保前端永远不空）
     return this._getFallbackQuotes();
   },
 
@@ -114,6 +156,10 @@ const CrownPrince = {
       volume: [2800000, 42000000, 18500000, 31000000, 15800000][i],
       amount: [4700000000, 1980000000, 2817000000, 1109000000, 3450000000][i],
       turnover: [1.2, 0.45, 0.58, 0.32, 0.88][i],
+      outerDisk: [417, 1200, 800, 1500, 600][i],
+      innerDisk: [230, 800, 600, 1100, 700][i],
+      netFlowRatio: [28.9, 20.0, 14.3, 15.4, -7.7][i],
+      flowDirection: ['strong_buy', 'strong_buy', 'mild_buy', 'strong_buy', 'mild_sell'][i],
       marketCap: [2100000000000, 860000000000, 591000000000, 1420000000000, 960000000000][i],
       status: '正常'
     }));
@@ -134,25 +180,37 @@ const CrownPrince = {
       const raw = await res.text();
       const parts = raw.split('~');
       if (parts.length < 50 || !parts[3]) return null;
+
+      const outerDisk = parseFloat(parts[6]) || 0;
+      const innerDisk = parseFloat(parts[7]) || 0;
+      const totalDisk = outerDisk + innerDisk;
+      const netFlowRatio = totalDisk > 0 ? ((outerDisk - innerDisk) / totalDisk * 100).toFixed(1) : '0.0';
+
       const result = {
         code, mkt,
         name: parts[1],
-        price: parseFloat(parts[3]),
-        open: parseFloat(parts[4]),
-        high: parseFloat(parts[33]),
-        low: parseFloat(parts[34]),
-        volume: parseInt(parts[36]) * 10000,
-        amount: parseFloat(parts[37]) * 10000,
-        turnover: parseFloat(parts[38]),
-        change: parseFloat(parts[31]),
+        price:   parseFloat(parts[3]),
+        open:    parseFloat(parts[4]),
+        high:    parseFloat(parts[33]),
+        low:     parseFloat(parts[34]),
+        change:  parseFloat(parts[31]),
         changePct: parseFloat(parts[32]),
+        volume:  (parseFloat(parts[36]) || 0) * 100,
+        amount:  (parseFloat(parts[37]) || 0) * 10000,
+        turnover: parseFloat(parts[38]),
+        outerDisk,
+        innerDisk,
+        netFlowRatio: parseFloat(netFlowRatio),
+        flowDirection: (outerDisk - innerDisk > 50) ? 'strong_buy' : outerDisk > innerDisk ? 'mild_buy' : (innerDisk - outerDisk > 50) ? 'strong_sell' : 'mild_sell',
+        pe: parseFloat(parts[39]),
+        marketCap: (parseFloat(parts[44]) || 0) * 1e8,
       };
       this.setCache(cacheKey, result, this.TTL.quote);
       return result;
     } catch { return null; }
   },
 
-  // ---- 大盘指数（腾讯）----
+  // ---- 大盘指数 ----
   async getMarketOverview() {
     if (this.isCacheValid('market_overview')) return this.getCache('market_overview');
     try {
@@ -164,11 +222,11 @@ const CrownPrince = {
       const raw = await res.text();
       const lines = raw.trim().split('\n').filter(l => l);
       const indexMap = {
-        'sh000001': { name: '上证指数', code: 'sh000001' },
-        'sz399001': { name: '深证成指', code: 'sz399001' },
-        'sz399006': { name: '创业板指', code: 'sz399006' },
-        'sh000300': { name: '沪深300',  code: 'sh000300' },
-        'sh000688': { name: '科创50',   code: 'sh000688' },
+        'sh000001': { name: '上证指数',   code: 'sh000001' },
+        'sz399001': { name: '深证成指',   code: 'sz399001' },
+        'sz399006': { name: '创业板指',   code: 'sz399006' },
+        'sh000300': { name: '沪深300',    code: 'sh000300' },
+        'sh000688': { name: '科创50',     code: 'sh000688' },
       };
       const indicesData = [];
       for (const line of lines) {
@@ -179,14 +237,13 @@ const CrownPrince = {
         if (!info) continue;
         indicesData.push({
           code: info.code, name: info.name,
-          price: parseFloat(parts[3]) || 0,
-          change: parseFloat(parts[31]) || 0,
+          price:     parseFloat(parts[3])  || 0,
+          change:    parseFloat(parts[31]) || 0,
           changePct: parseFloat(parts[32]) || 0,
           status: parseFloat(parts[32]) >= 0 ? 'up' : 'down'
         });
       }
       const upCount = indicesData.filter(i => i.changePct > 0).length;
-      const avgChg = indicesData.length ? indicesData.reduce((s, i) => s + i.changePct, 0) / indicesData.length : 0;
       const sentimentMap = {
         4: { status: 'BULL', text: '市场强势 🐂' },
         3: { status: 'BULL', text: '谨慎乐观' },
@@ -206,7 +263,6 @@ const CrownPrince = {
       return result;
     } catch (e) {
       console.warn('大盘指数失败:', e.message);
-      // 演示数据兜底
       return {
         indices: [
           { code: 'sh000001', name: '上证指数', price: 3368.52, change: 18.23, changePct: 0.54, status: 'up' },
@@ -218,7 +274,7 @@ const CrownPrince = {
     }
   },
 
-  // ---- K线数据（新浪财经，稳定）----
+  // ---- 新浪K线 ----
   async getKLine(code, mkt, ktype = 'D', count = 120) {
     const cacheKey = `kline_${code}_${ktype}_${count}`;
     if (this.isCacheValid(cacheKey)) return this.getCache(cacheKey);
@@ -230,10 +286,7 @@ const CrownPrince = {
     const scaleMap = { D: 240, W: 1440, M: 7200 };
     const scale = scaleMap[ktype] || 240;
     const datalen = Math.min(count, 500);
-
-    // 新浪财经K线（主要）
     const sinaUrl = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${prefix}${code}&scale=${scale}&ma=no&datalen=${datalen}`;
-
     try {
       const res = await fetch(sinaUrl, {
         headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://finance.sina.com.cn' },
@@ -243,22 +296,24 @@ const CrownPrince = {
       if (Array.isArray(klines_raw) && klines_raw.length > 0) {
         const poolInfo = STOCK_POOL.find(s => s.code === code);
         const klines = klines_raw.map(k => ({
-          date: k.day, open: parseFloat(k.open), close: parseFloat(k.close),
-          high: parseFloat(k.high), low: parseFloat(k.low),
-          volume: parseInt(k.volume), amount: 0,
-          change: 0, changePct: 0, turnover: 0, amplitude: 0
-        })).sort((a, b) => a.date.localeCompare(b.date)); // 时间正序
+          date: k.day,
+          open:  parseFloat(k.open),
+          close: parseFloat(k.close),
+          high:  parseFloat(k.high),
+          low:   parseFloat(k.low),
+          volume: parseInt(k.volume),
+          amount: 0, change: 0, changePct: 0, turnover: 0, amplitude: 0
+        })).sort((a, b) => a.date.localeCompare(b.date));
         const indicators = GongBu.calculateIndicators(klines);
         const result = { code, name: poolInfo?.name || code, industry: poolInfo?.industry || '', klines, indicators };
         this.setCache(cacheKey, result, this.TTL.kline);
         return result;
       }
     } catch (e) { console.warn('新浪K线失败:', e.message); }
-
     return null;
   },
 
-  // ---- 板块行情（腾讯概念板块）----
+  // ---- 板块热度 ----
   async getSectorHeat() {
     if (this.isCacheValid('sector_heat')) return this.getCache('sector_heat');
     try {
@@ -282,16 +337,13 @@ const CrownPrince = {
       if (sectors.length > 0) {
         sectors.sort((a, b) => b.change - a.change);
         const result = { sectors, updateTime: new Date().toISOString() };
-        this.setCache('sector_heat', result, this.TTL.sector);
+        this.setCache('sector_heat', result, this.TTL.overview);
         return result;
       }
     } catch {}
     return { sectors: [], updateTime: new Date().toISOString() };
   },
 };
-
-// 精选5只（速度优先，并发拉取）
-const TOP_STOCKS = STOCK_POOL.slice(0, 5);
 
 // ============================================================
 // 工部 GongBu - 技术指标计算
@@ -321,7 +373,7 @@ const GongBu = {
     for (let i = 2; i < closes.length; i++) {
       let g14 = 0, l14 = 0, g6 = 0, l6 = 0;
       for (let j = Math.max(2, i - 13); j <= i; j++) { const d = closes[j] - closes[j-1]; if (d > 0) g14 += d; else l14 -= d; }
-      for (let j = Math.max(2, i - 5); j <= i; j++)  { const d = closes[j] - closes[j-1]; if (d > 0) g6  += d; else l6  -= d; }
+      for (let j = Math.max(2, i - 5);  j <= i; j++) { const d = closes[j] - closes[j-1]; if (d > 0) g6  += d; else l6  -= d; }
       RSI14.push(l14 === 0 ? 100 : 100 - 100 / (1 + g14 / l14));
       RSI6.push( l6  === 0 ? 100 : 100 - 100 / (1 + g6  / l6));
     }
@@ -360,21 +412,19 @@ const GongBu = {
     };
   },
 
-  // 四策略回测引擎（基于真实K线）
+  // ---- 四策略回测引擎 ----
   async runBacktest(code, mkt, startDate, endDate, initialCash = 100000, strategyType = 'momentum') {
     const klineData = await CrownPrince.getKLine(code, mkt, 'D', 500);
     if (!klineData) return null;
-
-    // 新浪K线数据是"最新在前"，反转成时间正序（ oldest → newest）
     const sortedKlines = [...klineData.klines].reverse();
     const klines = sortedKlines.filter(k => k.date >= startDate && k.date <= endDate);
     if (klines.length < 30) return null;
 
     const closes = klines.map(k => k.close);
-    const MA5    = GongBu._ma(closes, 5);
+    const MA5   = GongBu._ma(closes, 5);
     const MA10   = GongBu._ma(closes, 10);
     const MA20   = GongBu._ma(closes, 20);
-    const { RSI6 } = { RSI6: GongBu._rsi(closes, 6) };
+    const RSI6   = GongBu._rsi(closes, 6);
 
     let cash = initialCash, shares = 0, peak = initialCash;
     let totalWin = 0, totalLoss = 0, winCount = 0, lossCount = 0;
@@ -390,34 +440,24 @@ const GongBu = {
 
       if (strategyType === 'momentum') {
         if (shares === 0 && MA5[i] > MA10[i] && MA10[i] > MA20[i] && closes[i] > MA5[i] && closes[i] > closes[i-1]) {
-          const qty = Math.floor(cash * 0.9 / closes[i]);
-          if (qty > 0) BUY(closes[i], qty, '均线多头排列', i);
+          const qty = Math.floor(cash * 0.9 / closes[i]); if (qty > 0) BUY(closes[i], qty, '均线多头排列', i);
         } else if (shares > 0 && (MA5[i] < MA10[i] || closes[i] < MA20[i] * 0.97)) {
           SELL(closes[i], MA5[i] < MA10[i] ? '均线死叉' : '跌破MA20', i);
         }
       } else if (strategyType === 'mean_reversion') {
         if (shares === 0 && MA20[i] && Math.abs(closes[i] - MA20[i]) / MA20[i] > 0.06 && closes[i] < MA20[i]) {
-          const qty = Math.floor(cash * 0.9 / closes[i]);
-          if (qty > 0) BUY(closes[i], qty, '超跌反弹', i);
-        } else if (shares > 0 && closes[i] >= MA20[i] * 1.03) {
-          SELL(closes[i], '均值回归', i);
-        }
+          const qty = Math.floor(cash * 0.9 / closes[i]); if (qty > 0) BUY(closes[i], qty, '超跌反弹', i);
+        } else if (shares > 0 && closes[i] >= MA20[i] * 1.03) { SELL(closes[i], '均值回归', i); }
       } else if (strategyType === 'breakout') {
         const high20 = Math.max(...klines.slice(Math.max(0, i - 20), i).map(k => k.high));
         const low10  = Math.min(...klines.slice(Math.max(0, i - 10), i).map(k => k.low));
         if (shares === 0 && closes[i] > high20 && closes[i] > closes[i-1]) {
-          const qty = Math.floor(cash * 0.9 / closes[i]);
-          if (qty > 0) BUY(closes[i], qty, '突破新高', i);
-        } else if (shares > 0 && closes[i] < low10) {
-          SELL(closes[i], '跌破支撑', i);
-        }
+          const qty = Math.floor(cash * 0.9 / closes[i]); if (qty > 0) BUY(closes[i], qty, '突破新高', i);
+        } else if (shares > 0 && closes[i] < low10) { SELL(closes[i], '跌破支撑', i); }
       } else if (strategyType === 'rsi') {
         if (shares === 0 && RSI6[i] && RSI6[i] < 30 && RSI6[i] > RSI6[i-1]) {
-          const qty = Math.floor(cash * 0.9 / closes[i]);
-          if (qty > 0) BUY(closes[i], qty, 'RSI超卖', i);
-        } else if (shares > 0 && RSI6[i] && RSI6[i] > 70) {
-          SELL(closes[i], 'RSI超买', i);
-        }
+          const qty = Math.floor(cash * 0.9 / closes[i]); if (qty > 0) BUY(closes[i], qty, 'RSI超卖', i);
+        } else if (shares > 0 && RSI6[i] && RSI6[i] > 70) { SELL(closes[i], 'RSI超买', i); }
       }
     }
 
@@ -460,39 +500,89 @@ const GongBu = {
 };
 
 // ============================================================
-// 中书省 ZhongshuSheng - AI选股引擎（基于真实数据）
+// 中书省 ZhongshuSheng - 三层评分选股引擎
+// 基于 AI-Trader 信号评分体系 + akshare 财务/资金流
 // ============================================================
-const ZhongshuSheng = {
-  async scoreStocks() {
-    // 纯实时行情评分，不拉K线，毫秒响应
-    let quotes;
+
+// ---- 加载日更层数据（data/*.json）----
+let _financialCache = null;
+let _capitalFlowCache = null;
+let _lhbCache = null;
+
+async function loadStaticData() {
+  if (_financialCache === null) {
     try {
-      quotes = await CrownPrince.getBatchQuotes();
-    } catch(e) {
-      quotes = [];
-    }
-    // 成功数过少（Eastmoney限流），强制走演示数据兜底，保证前端不残缺
+      const fm = await fetch('https://raw.githubusercontent.com/lorinwei/stock-picker/master/data/financial.json');
+      _financialCache = await fm.json().catch(() => ({}));
+    } catch { _financialCache = {}; }
+  }
+  if (_capitalFlowCache === null) {
+    try {
+      const cm = await fetch('https://raw.githubusercontent.com/lorinwei/stock-picker/master/data/capital_flow.json');
+      _capitalFlowCache = await cm.json().catch(() => ({}));
+    } catch { _capitalFlowCache = {}; }
+  }
+  if (_lhbCache === null) {
+    try {
+      const lm = await fetch('https://raw.githubusercontent.com/lorinwei/stock-picker/master/data/lhb.json');
+      _lhbCache = await lm.json().catch(() => ({ items: [] }));
+    } catch { _lhbCache = { items: [] }; }
+  }
+  return { financial: _financialCache, capitalFlow: _capitalFlowCache, lhb: _lhbCache };
+}
+
+const ZhongshuSheng = {
+
+  // ---- 三层评分体系 ----
+  // 技术面（40%）：MA排列/RSI/KDJ/BOLL
+  // 资金面（30%）：外盘内盘/akshare资金流
+  // 基本面（30%）：ROE/净利润增速/资产负债率
+
+  async scoreStocks() {
+    const [quotes, staticData] = await Promise.all([
+      CrownPrince.getBatchQuotes().catch(() => []),
+      loadStaticData()
+    ]);
+
+    const { financial, capitalFlow } = staticData;
+
     if (!quotes || quotes.length < 3) {
-      return [
-        { code: '600519', name: '贵州茅台', mkt: '1', industry: '白酒', price: 1680.5, change: 12.8, changePct: 0.77, volume: 2800000, turnover: 1.2, amount: 4700000000, marketCap: 2100000000000, score: { total: 68, reasons: ['价格适中', '高流动性'] }, target: 1815, stopLoss: 1597, positionRatio: 13, reasons: ['价格适中', '高流动性'] },
-        { code: '601318', name: '中国平安', mkt: '1', industry: '保险', price: 47.2, change: 0.6, changePct: 1.29, volume: 42000000, turnover: 0.45, amount: 1980000000, marketCap: 860000000000, score: { total: 63, reasons: ['涨幅领先', '行业稳健'] }, target: 51, stopLoss: 44.9, positionRatio: 12, reasons: ['涨幅领先', '行业稳健'] },
-        { code: '000858', name: '五粮液', mkt: '0', industry: '白酒', price: 152.3, change: 1.4, changePct: 0.93, volume: 18500000, turnover: 0.58, amount: 2817000000, marketCap: 591000000000, score: { total: 60, reasons: ['小幅上涨', '价格适中'] }, target: 164, stopLoss: 144.7, positionRatio: 12, reasons: ['小幅上涨', '价格适中'] },
-        { code: '300750', name: '宁德时代', mkt: '0', industry: '新能源', price: 218.5, change: -3.2, changePct: -1.44, volume: 15800000, turnover: 0.88, amount: 3450000000, marketCap: 960000000000, score: { total: 55, reasons: ['超跌反弹机会'] }, target: 236, stopLoss: 207.6, positionRatio: 11, reasons: ['超跌反弹机会'] },
-        { code: '600036', name: '招商银行', mkt: '1', industry: '银行', price: 35.8, change: 0.4, changePct: 1.13, volume: 31000000, turnover: 0.32, amount: 1109000000, marketCap: 1420000000000, score: { total: 58, reasons: ['小幅上涨', '行业稳健'] }, target: 38.7, stopLoss: 34.0, positionRatio: 11, reasons: ['小幅上涨', '行业稳健'] },
-      ];
+      return this._getFallbackScores();
     }
 
     return quotes.map(q => {
-      const score = this._realtimeScore(q);
+      const fin = financial[q.code] || {};
+      const flow = capitalFlow[q.code] || {};
+      const score = this._calcTripleScore(q, fin, flow);
       const stopLoss = +(q.price * 0.95).toFixed(2);
       const target   = +(q.price * 1.08).toFixed(2);
+
       return {
         code: q.code, name: q.name, industry: q.industry,
         price: q.price, change: q.change, changePct: q.changePct,
         volume: q.volume, amount: q.amount, turnover: q.turnover,
         marketCap: q.marketCap, mkt: q.mkt,
+        // 资金流（实时层）
+        flow: {
+          outerDisk: q.outerDisk,
+          innerDisk: q.innerDisk,
+          netFlowRatio: q.netFlowRatio,
+          direction: q.flowDirection,
+          directionLabel: DIRECTION_LABELS[q.flowDirection] || q.flowDirection,
+        },
+        // 基本面（日更层）
+        fundamentals: fin.status === 'ok' ? {
+          roe:           fin.roe,
+          niGrowth:      fin.ni_growth,
+          revenueGrowth: fin.revenue_growth,
+          debtRatio:     fin.debt_ratio,
+          grossMargin:   fin.gross_margin,
+          eps:           fin.eps,
+          reportDate:    fin.date,
+        } : null,
+        // 综合评分
         score, reasons: score.reasons,
-        signals: score.total >= 75 ? ['BUY'] : score.total >= 55 ? ['WATCH'] : ['HOLD'],
+        signals:  score.total >= 75 ? ['BUY'] : score.total >= 55 ? ['WATCH'] : ['HOLD'],
         buyRange: `${(q.price * 0.995).toFixed(2)}~${(q.price * 1.005).toFixed(2)}`,
         target, stopLoss,
         positionRatio: Math.min(20, Math.round(score.total / 5))
@@ -500,52 +590,105 @@ const ZhongshuSheng = {
     }).sort((a, b) => b.score.total - a.score.total);
   },
 
-  // 多因子AI评分（基于实时行情+腾讯数据）
-  _realtimeScore(q) {
+  // 三层评分计算
+  _calcTripleScore(q, fin, flow) {
     const reasons = [];
-    let s = 50; // 基准分
+    let techScore = 50;    // 技术面起点50
+    let flowScore = 50;    // 资金面起点50
+    let fundScore = 50;    // 基本面起点50
 
-    // 涨幅因子
+    // ===== 技术面（40%权重）=====
     const chg = q.changePct || 0;
-    if (chg > 4)       { s += 25; reasons.push('🔥 今日强势拉升'); }
-    else if (chg > 2)  { s += 15; reasons.push('📈 涨幅领先'); }
-    else if (chg > 0)  { s += 8;  reasons.push('↗️ 小幅上涨'); }
-    else if (chg < -3) { s += 10; reasons.push('📉 超跌反弹机会'); }
+    const turn = q.turnover || 0;
 
-    // 换手率因子（活跃度）
-    const turnover = q.turnover || 0;
-    if (turnover > 3)     { s += 15; reasons.push('⚡ 成交量异常放大'); }
-    else if (turnover > 1.5) { s += 8; reasons.push('📊 量能温和放大'); }
-    else if (turnover > 0.5) { s += 3; }
+    if (chg > 4)        { techScore += 25; reasons.push('🔥 今日强势拉升'); }
+    else if (chg > 2)   { techScore += 15; reasons.push('📈 涨幅领先'); }
+    else if (chg > 0)   { techScore += 8;  reasons.push('↗️ 小幅上涨'); }
+    else if (chg < -3)  { techScore += 10; reasons.push('📉 超跌反弹机会'); }
 
-    // PE估值因子（价值投资者参考）
-    const pe = q.pe || 0;
-    if (pe > 0 && pe < 15)    { s += 10; reasons.push('💰 低估值'); }
-    else if (pe > 0 && pe < 25) { s += 5; reasons.push('📐 估值合理'); }
-    else if (pe > 80)          { s -= 5; reasons.push('⚠️ 高估值风险'); }
+    if (turn > 3)       { techScore += 15; reasons.push('⚡ 成交量异常放大'); }
+    else if (turn > 1.5){ techScore += 8;  reasons.push('📊 量能温和放大'); }
+    else if (turn > 0.5){ techScore += 3; }
 
-    // 流通市值因子（流动性）
-    const mc = q.marketCap || 0;
-    if (mc > 5e11)   { s += 5; reasons.push('🏦 大盘蓝筹'); }
-    else if (mc > 1e11) { s += 3; reasons.push('📦 中大盘股'); }
+    // ===== 资金面（30%权重）=====
+    const flowDir = q.flowDirection;
+    if (flowDir === 'strong_buy')  { flowScore += 30; reasons.push('💰 大单主动买入'); }
+    else if (flowDir === 'mild_buy'){ flowScore += 15; reasons.push('📊 资金净流入'); }
+    else if (flowDir === 'strong_sell'){ flowScore -= 20; reasons.push('⚠️ 大单主动卖出'); }
+    else if (flowDir === 'mild_sell'){ flowScore -= 8; reasons.push('⚠️ 资金净流出'); }
 
-    // 绝对价格（操作友好性）
-    const p = q.price || 0;
-    if (p >= 10 && p <= 200) { s += 3; reasons.push('🎯 价格适中'); }
-    else if (p > 1000)        { s -= 3; reasons.push('⚠️ 价格偏高'); }
+    // akshare 日更层资金流（5日均）
+    if (flow.status === 'ok') {
+      const avg5 = flow.main_5d_avg_net || 0;
+      const avg5r = flow.main_5d_avg_ratio || 0;
+      if (avg5 > 1e7)           { flowScore += 10; reasons.push('📈 5日主力持续净流入'); }
+      else if (avg5 < -1e7)     { flowScore -= 10; reasons.push('⚠️ 5日主力持续净流出'); }
+      if (flow.trend === 'strong_inflow') { flowScore += 5; }
+      else if (flow.trend === 'strong_outflow') { flowScore -= 5; }
+    }
 
-    // 行业分布
+    // ===== 基本面（30%权重）=====
+    if (fin.status === 'ok') {
+      const roe = fin.roe || 0;
+      const niGrowth = fin.ni_growth || 0;
+      const debt = fin.debt_ratio || 0;
+      const revGrowth = fin.revenue_growth || 0;
+
+      if (roe > 15)           { fundScore += 20; reasons.push('💎 ROE优秀(>' + roe.toFixed(1) + '%)'); }
+      else if (roe > 10)      { fundScore += 10; reasons.push('✅ ROE良好'); }
+      else if (roe < 0)       { fundScore -= 15; reasons.push('⚠️  ROE为负'); }
+
+      if (niGrowth > 20)      { fundScore += 15; reasons.push('🚀 净利润高增长(+' + niGrowth.toFixed(1) + '%)'); }
+      else if (niGrowth > 5)  { fundScore += 8;  reasons.push('📈 净利润正增长'); }
+      else if (niGrowth < -20){ fundScore -= 15; reasons.push('⚠️ 净利润大幅下滑'); }
+      else if (niGrowth < 0)  { fundScore -= 5; }
+
+      if (debt < 50)          { fundScore += 5; reasons.push('🏦 低负债(<' + debt.toFixed(0) + '%)'); }
+      else if (debt > 80)     { fundScore -= 5; reasons.push('⚠️ 高负债率'); }
+
+      if (revGrowth > 20)     { fundScore += 5; reasons.push('📊 营收高增长'); }
+    } else {
+      reasons.push('📋 基本面待更新');
+    }
+
+    // 行业安全加成
     const safe = ['白酒', '银行', '保险', '医药', '电力', '新能源', '家电'];
-    if (safe.includes(q.industry)) { s += 5; }
+    if (safe.includes(q.industry)) techScore += 3;
+
+    // 价格合理性
+    const p = q.price || 0;
+    if (p >= 10 && p <= 200) { fundScore += 3; }
+    else if (p > 1000)        { fundScore -= 3; reasons.push('⚠️ 价格偏高'); }
+
+    // 加权总分
+    const total = Math.round(techScore * 0.4 + flowScore * 0.3 + fundScore * 0.3);
+    const finalScore = Math.min(99, Math.max(25, total));
 
     return {
-      total: Math.min(99, Math.max(30, Math.round(s))),
-      reasons: reasons.slice(0, 3)
+      total: finalScore,
+      breakdown: { tech: Math.round(techScore), flow: Math.round(flowScore), fund: Math.round(fundScore) },
+      reasons: reasons.slice(0, 4)
     };
   },
 
+  _getFallbackScores() {
+    return STOCK_POOL.slice(0, 5).map((s, i) => ({
+      code: s.code, name: s.name, industry: s.industry,
+      price: [1680.5, 47.2, 152.3, 35.8, 218.5][i],
+      change: [12.8, 0.6, 1.4, 0.4, -3.2][i],
+      changePct: [0.77, 1.29, 0.93, 1.13, -1.44][i],
+      flow: { direction: ['strong_buy','strong_buy','mild_buy','strong_buy','mild_sell'][i], directionLabel: ['大单买入','大单买入','小幅买入','大单买入','小幅卖出'][i] },
+      fundamentals: null,
+      score: { total: [68, 63, 60, 58, 55][i], breakdown: { tech: 60, flow: 65, fund: 70 }, reasons: ['演示数据'] },
+      reasons: ['价格适中', '高流动性'],
+      signals: [['BUY'],['WATCH'],['WATCH'],['WATCH'],['HOLD']][i],
+      target: [1815, 51, 164, 38.7, 236][i],
+      stopLoss: [1597, 44.9, 144.7, 34.0, 207.6][i],
+      positionRatio: [13, 12, 12, 11, 11][i]
+    }));
+  },
+
   async getTodaySignals() {
-    // 信号缓存（2分钟，避免每次重算）
     if (global.__signalsCache && Date.now() - global.__signalsCacheTime < 120000) {
       return global.__signalsCache;
     }
@@ -556,38 +699,39 @@ const ZhongshuSheng = {
     const mainPick = {
       name: main.name, code: main.code, industry: main.industry,
       score: main.score.total, type: main.score.total >= 75 ? 'MAIN' : 'WATCH',
+      scoreBreakdown: main.score.breakdown,
       buyPrice: main.price,
-      targetPrice: main.target,
-      stopLoss: main.stopLoss,
+      targetPrice: main.target, stopLoss: main.stopLoss,
       positionRatio: main.positionRatio,
       publishTime: new Date().toISOString(),
       reasons: main.reasons.length > 0 ? main.reasons : ['技术面企稳'],
       price: main.price, change: main.change, changePct: main.changePct,
-      target: main.target, stop: main.stopLoss
+      flow: main.flow,
     };
 
     const alternatives = ranked.slice(1, 4).map(s => ({
       name: s.name, code: s.code, industry: s.industry,
-      score: s.score.total, change: s.changePct,
+      score: s.score.total, scoreBreakdown: s.score.breakdown,
+      change: s.changePct, flow: s.flow,
       reasons: s.reasons.slice(0, 2),
-      buyRange: s.buyRange, target: s.target, stop: s.stopLoss
+      target: s.target, stop: s.stopLoss
     }));
 
     return (global.__signalsCache = {
-        mainPick,
-        alternatives,
-        stats: { pickCount: ranked.length, winRate: 0, followerCount: 0, note: '基于实时行情AI评分' }
-      }), global.__signalsCacheTime = Date.now(), global.__signalsCache;
+      mainPick, alternatives,
+      stats: { pickCount: ranked.length, dataSources: '实时+日更', note: '三层评分(技术40%/资金30%/基本面30%)' }
+    }), global.__signalsCacheTime = Date.now(), global.__signalsCache;
   },
 
   async getStockPool(category = 'all', page = 1, pageSize = 20) {
     let stocks = await this.scoreStocks();
     if (category === 'growth') stocks = stocks.filter(s => s.score.total >= 65);
-    else if (category === 'value') stocks = stocks.filter(s => s.price > 0);
+    else if (category === 'value') stocks = stocks.filter(s => s.fundamentals?.roe > 10);
     else if (category === 'hot') stocks = stocks.filter(s => s.changePct > 0);
+    else if (category === 'fund_flow') stocks = stocks.filter(s => s.flow.direction === 'strong_buy' || s.flow.direction === 'mild_buy');
     const start = (page - 1) * pageSize;
     return { items: stocks.slice(start, start + pageSize), total: stocks.length, page, pageSize };
-  }
+  },
 };
 
 // ============================================================
@@ -632,7 +776,6 @@ const ShangshuSheng = {
   ],
   _cash: 400587,
   async getPortfolio() {
-    // 更新持仓价格为实时价格
     await Promise.all(this._portfolio.map(async p => {
       const quote = await CrownPrince.getQuote(`${p.mkt}.${p.code}`);
       if (quote) { p.currentPrice = quote.price; p.marketValue = p.shares * quote.price; p.profit = (quote.price - p.cost) * p.shares; p.profitPct = +((quote.price - p.cost) / p.cost * 100).toFixed(2); }
@@ -697,7 +840,7 @@ const AIModule = {
       const mkt = await CrownPrince.getMarketOverview();
       if (mkt) {
         const idxStr = mkt.indices.map(i => `${i.name} **${i.price.toFixed(2)}** ${i.change >= 0 ? '↑' : '↓'} ${i.change >= 0 ? '+' : ''}${i.changePct.toFixed(2)}%`).join('\n');
-        return `📊 **今日大盘分析**（${new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）\n\n${idxStr}\n\n${mkt.sentiment ? '**市场情绪：' + mkt.sentiment + '**' : ''}\n\n数据来源：东方财富`;
+        return `📊 **今日大盘分析**（${new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）\n\n${idxStr}\n\n${mkt.sentiment ? '**市场情绪：' + mkt.sentiment + '**' : ''}\n\n数据来源：腾讯行情`;
       }
     }
 
@@ -705,7 +848,8 @@ const AIModule = {
       const sig = await ZhongshuSheng.getTodaySignals();
       if (sig?.mainPick) {
         const mp = sig.mainPick;
-        return `🚀 **AI今日主推**\n\n**${mp.name} ${mp.code}** ⭐评分${mp.score}\n├ 行业：${mp.industry}\n├ 现价：¥${mp.buyPrice?.toFixed(2)}\n├ 目标价：¥${mp.targetPrice?.toFixed(2)}（+${((mp.targetPrice/mp.buyPrice-1)*100).toFixed(1)}%）\n├ 止损价：¥${mp.stopLoss?.toFixed(2)}（-${((1-mp.stopLoss/mp.buyPrice)*100).toFixed(1)}%）\n└ AI理由：${mp.reasons?.join(' · ') || '技术面综合评分'}\n\n备选：${sig.alternatives?.map(a => `${a.name}(${a.code}) ⭐${a.score}`).join(' / ') || ''}\n\n⚠️ 仅供参考，不构成投资建议`;
+        const bd = mp.scoreBreakdown || {};
+        return `🚀 **AI今日主推**\n\n**${mp.name} ${mp.code}** ⭐评分${mp.score}\n├ 行业：${mp.industry}\n├ 现价：¥${mp.buyPrice?.toFixed(2)}\n├ 涨跌：${mp.changePct >= 0 ? '+' : ''}${mp.changePct?.toFixed(2)}%\n├ 资金流：${mp.flow?.directionLabel || '分析中'}\n├ 技术分：${bd.tech || '-'}/100 | 资金分：${bd.flow || '-'}/100 | 基本分：${bd.fund || '-'}/100\n├ 目标价：¥${mp.targetPrice?.toFixed(2)}（+8%）\n├ 止损价：¥${mp.stopLoss?.toFixed(2)}（-5%）\n└ AI理由：${mp.reasons?.join(' · ') || '技术面综合评分'}\n\n备选：${sig.alternatives?.map(a => `${a.name}(${a.code}) ⭐${a.score}`).join(' / ') || ''}\n\n⚠️ 仅供参考，不构成投资建议`;
       }
     }
 
@@ -725,13 +869,20 @@ const AIModule = {
       }
     }
 
-    return `收到您的问题：${userMessage}\n\n我可以帮您分析：\n📊 大盘行情 / 板块机会\n🚀 股票推荐 / 标的诊断\n💼 持仓分析\n📈 技术指标 / 策略回测\n\n请换个问法试试？`;
+    return `收到您的问题：${userMessage}\n\n我可以帮您分析：\n📊 大盘行情 / 板块机会\n🚀 股票推荐 / 标的诊断（含三层评分：技术/资金/基本面）\n💼 持仓分析\n📈 技术指标 / 策略回测\n\n请换个问法试试？`;
   }
 };
 
 // ============================================================
-// 路由 - 使用同步风格，避免 Vercel Serverless async 兼容问题
+// 路由
 // ============================================================
+const DIRECTION_LABELS = {
+  strong_buy:  '大单买入',
+  mild_buy:    '小幅买入',
+  mild_sell:   '小幅卖出',
+  strong_sell: '大单卖出',
+};
+
 module.exports = function handler(req, res) {
   const u = new URL(req.url, 'https://stock-picker-ten.vercel.app');
   const path = u.pathname;
@@ -747,7 +898,6 @@ module.exports = function handler(req, res) {
   let body = {};
   try { if (req.body) body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; } catch(e) {}
 
-  // 统一处理async函数调用
   const handleAsync = async (fn) => {
     try {
       const data = await fn();
@@ -756,9 +906,8 @@ module.exports = function handler(req, res) {
   };
 
   try {
-    // 太子院
     if (path === '/api/health') {
-      json({ status: 'ok', time: new Date().toISOString(), arch: '三省六部·真实数据', source: 'Eastmoney' });
+      json({ status: 'ok', time: new Date().toISOString(), arch: '三层数据架构 V3', version: '实时+日更' });
     }
     else if (path === '/api/market/overview') {
       handleAsync(() => CrownPrince.getMarketOverview());
@@ -782,7 +931,7 @@ module.exports = function handler(req, res) {
       handleAsync(async () => { const d = await CrownPrince.getKLine(code, mkt, 'D', 120); return d?.indicators; });
     }
 
-    // 中书省
+    // 中书省 - 三层评分
     else if (path === '/api/signals/today') {
       handleAsync(() => ZhongshuSheng.getTodaySignals());
     }
@@ -815,7 +964,7 @@ module.exports = function handler(req, res) {
       json(pos);
     }
 
-    // 回测配置
+    // 回测
     else if (path === '/api/backtest/strategies') {
       json(Liubu.getStrategies());
     }
@@ -826,7 +975,6 @@ module.exports = function handler(req, res) {
       const end   = u.searchParams.get('end')      || body.endDate    || new Date().toISOString().split('T')[0];
       const strat = u.searchParams.get('strategy') || body.strategyType || 'momentum';
       const cash  = parseFloat(u.searchParams.get('initialCash') || body.initialCash || '100000');
-      // 10秒超时保护（Vercel Serverless限制）
       const timeoutMs = 9000;
       const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('回测超时(10s)，请减少日期范围')), timeoutMs));
       handleAsync(() => Promise.race([
