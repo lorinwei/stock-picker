@@ -76,7 +76,9 @@ const CrownPrince = {
       headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://finance.qq.com' },
       signal: AbortSignal.timeout(8000)
     });
-    const raw = await res.text();
+    const buf = await res.arrayBuffer();
+    const decoder = new TextDecoder('gbk');
+    const raw = decoder.decode(buf);
     const results = [];
     const lines = raw.trim().split('\n').filter(l => l);
 
@@ -84,7 +86,7 @@ const CrownPrince = {
       const parts = line.split('~');
       if (parts.length < 50 || !parts[3]) continue;
 
-      const sym = parts[0].split('_')[1] || '';
+      const sym = parts[0].split('_')[1]?.replace(/"/g, '') || '';
       const code = sym.replace(/^(sh|sz)/, '');
       const mktKey = sym.startsWith('sh') ? '1' : '0';
       const poolInfo = STOCK_POOL.find(s => s.code === code && s.mkt === mktKey) || {};
@@ -177,7 +179,9 @@ const CrownPrince = {
         headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://finance.qq.com' },
         signal: AbortSignal.timeout(6000)
       });
-      const raw = await res.text();
+      const buf = await res.arrayBuffer();
+      const decoder = new TextDecoder('gbk');
+      const raw = decoder.decode(buf);
       const parts = raw.split('~');
       if (parts.length < 50 || !parts[3]) return null;
 
@@ -219,7 +223,9 @@ const CrownPrince = {
         headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://finance.qq.com' },
         signal: AbortSignal.timeout(6000)
       });
-      const raw = await res.text();
+      const buf = await res.arrayBuffer();
+      const decoder = new TextDecoder('gbk');
+      const raw = decoder.decode(buf);
       const lines = raw.trim().split('\n').filter(l => l);
       const indexMap = {
         'sh000001': { name: '上证指数',   code: 'sh000001' },
@@ -322,7 +328,9 @@ const CrownPrince = {
         headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://finance.qq.com' },
         signal: AbortSignal.timeout(6000)
       });
-      const raw = await res.text();
+      const buf = await res.arrayBuffer();
+      const decoder = new TextDecoder('gbk');
+      const raw = decoder.decode(buf);
       const sectors = [];
       for (const line of raw.trim().split('\n').filter(l => l)) {
         const parts = line.split('~');
