@@ -113,17 +113,20 @@ const alternatives = computed(() => stockStore.todaySignals?.alternatives || [])
 const stats = computed(() => stockStore.todaySignals?.stats || { winRate: 0, followerCount: 0 })
 
 // 适配器：API字段 → 模板字段
+// 处理 score 可能是 number 或 {total, breakdown} 两种格式
+const toScore = (s) => typeof s === 'number' ? s : (s?.total ?? s ?? 0);
+
 const mainSignal = computed(() => {
   const pick = mainPick.value
   if (!pick) return {}
   return {
     name: pick.name || '—',
     code: pick.code || '—',
-    score: pick.score ?? 0,
+    score: toScore(pick.score),
     price: pick.buyPrice ?? pick.price ?? 0,
-    target: pick.targetPrice ?? 0,
-    stop: pick.stopLoss ?? 0,
-    position: pick.positionRatio ?? 10,
+    target: pick.targetPrice ?? pick.target ?? 0,
+    stop: pick.stopLoss ?? pick.stop ?? 0,
+    position: pick.positionRatio ?? pick.position ?? 10,
     reason: Array.isArray(pick.reasons) ? pick.reasons.join(' · ') : (pick.reasons || ''),
     winRate: stats.value?.winRate ?? 0,
     followers: stats.value?.followerCount ?? 0,
@@ -134,12 +137,12 @@ const subSignals = computed(() => {
   return alternatives.value.map((s: any) => ({
     name: s.name || '—',
     code: s.code || '—',
-    score: s.score ?? 0,
+    score: toScore(s.score),
     reason: Array.isArray(s.reasons) ? s.reasons.join(' · ') : (s.reasons || ''),
-    change: s.change ?? 0,
-    price: s.price ?? 0,
-    target: s.target ?? 0,
-    stop: s.stop ?? 0,
+    change: s.change ?? s.changePct ?? 0,
+    price: s.price ?? s.buyPrice ?? 0,
+    target: s.target ?? s.targetPrice ?? 0,
+    stop: s.stop ?? s.stopLoss ?? 0,
     buyRange: s.buyRange || '',
   }))
 })

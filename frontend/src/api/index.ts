@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { ApiResponse } from '@/types'
 
 // StockMind V2 三省六部 API
-const WORKER_URL = 'https://stock-picker-ten.vercel.app';
+const WORKER_URL = 'https://stock-picker-nr27mao1i-lorinweis-projects.vercel.app';
 
 const api = axios.create({
   baseURL: `${WORKER_URL}/api`,

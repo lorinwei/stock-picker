@@ -38,7 +38,7 @@
             <span class="tsc-name">{{ s.name }}</span>
             <span class="tsc-code">{{ s.code }}</span>
             <span class="tsc-industry">{{ s.industry }}</span>
-            <span class="score-badge" :class="s.score?.total >= 55 ? 'gold' : ''">{{ s.score?.total || s.score }}</span>
+            <span class="score-badge" :class="toScore(s.score) >= 55 ? 'gold' : ''">{{ toScore(s.score) }}</span>
           </div>
           <span class="tsc-change" :class="s.change >= 0 ? 'up' : 'down'">
             {{ s.change >= 0 ? '+' : '' }}{{ s.change }}%
@@ -53,19 +53,19 @@
         <div class="tsc-price-info">
           <div class="pi-item">
             <span>买入区间</span>
-            <span class="price">¥{{ s.buyRange }}</span>
+            <span class="price">¥{{ s.buyRange || (s.price ? (s.price * 0.995).toFixed(2) + '~' + (s.price * 1.005).toFixed(2) : '—') }}</span>
           </div>
           <div class="pi-item">
             <span>目标价</span>
-            <span class="price up">¥{{ s.target }}</span>
+            <span class="price up">¥{{ s.target || '—' }}</span>
           </div>
           <div class="pi-item">
             <span>止损价</span>
-            <span class="price down">¥{{ s.stop }}</span>
+            <span class="price down">¥{{ s.stopLoss || s.stop || '—' }}</span>
           </div>
           <div class="pi-item">
             <span>北向资金</span>
-            <span class="price north">+{{ s.north_money }}亿</span>
+            <span class="price north">{{ s.north_money || s.flow?.netFlowRatio != null ? (s.flow.netFlowRatio > 0 ? '+' : '') + (s.flow.netFlowRatio ?? s.north_money) + '亿' : '—' }}</span>
           </div>
         </div>
 
@@ -126,10 +126,12 @@ const categories = [
   { label: '热门', value: 'hot' },
 ]
 
+const toScore = (s) => typeof s === 'number' ? s : (s?.total ?? 0);
+
 const pool = computed(() => stockStore.stockPool)
 const total = computed(() => pool.value?.total || 0)
-const topStocks = computed(() => (pool.value?.items || []).filter((s: any) => s.score?.total >= 55).slice(0, 3))
-const subStocks = computed(() => (pool.value?.items || []).filter((s: any) => !s.score?.total || s.score?.total < 55))
+const topStocks = computed(() => (pool.value?.items || []).filter((s: any) => toScore(s.score) >= 55).slice(0, 3))
+const subStocks = computed(() => (pool.value?.items || []).filter((s: any) => toScore(s.score) < 55))
 
 async function loadPool() {
   loading.value = true
