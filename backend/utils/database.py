@@ -1,18 +1,20 @@
 """
-数据库工具 - SQLite初始化和健康检查
+数据库工具 — 使用 aiosqlite，路径从 config 自动获取
 """
-import sqlite3
 import aiosqlite
-from pathlib import Path
 from loguru import logger
+from utils.config import settings
 
 
 async def init_database():
     """初始化数据库表"""
-    db_path = Path("/root/stock-picker/data/stockmind.db")
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    db_path = settings.DB_PATH
+    logger.info(f"初始化数据库: {db_path}")
 
     async with aiosqlite.connect(db_path) as db:
+        await db.execute("PRAGMA journal_mode=WAL")
+        await db.execute("PRAGMA foreign_keys=ON")
+
         # 持仓表
         await db.execute("""
             CREATE TABLE IF NOT EXISTS positions (
@@ -24,15 +26,15 @@ async def init_database():
                 quantity INTEGER NOT NULL,
                 cost REAL NOT NULL,
                 stop_loss_price REAL,
-                current_price REAL,
-                current_value REAL,
-                profit REAL,
-                profit_pct REAL,
-                highest_price REAL,
+                current_price REAL DEFAULT 0,
+                current_value REAL DEFAULT 0,
+                profit REAL DEFAULT 0,
+                profit_pct REAL DEFAULT 0,
+                highest_price REAL DEFAULT 0,
                 status TEXT DEFAULT 'holding',
                 notes TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                created_at TEXT DEFAULT (datetime('now','localtime')),
+                updated_at TEXT DEFAULT (datetime('now','localtime'))
             )
         """)
 
@@ -51,8 +53,7 @@ async def init_database():
                 pnl REAL,
                 pnl_pct REAL,
                 reason TEXT,
-                status TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                created_at TEXT DEFAULT (datetime('now','localtime'))
             )
         """)
 
@@ -65,24 +66,24 @@ async def init_database():
                 code TEXT NOT NULL,
                 name TEXT NOT NULL,
                 score REAL,
+                buy_point_type TEXT,
                 price REAL,
                 suggested_position REAL,
                 stop_loss_price REAL,
                 entry_reasons TEXT,
                 picked BOOLEAN DEFAULT 0,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                created_at TEXT DEFAULT (datetime('now','localtime'))
             )
         """)
 
         await db.commit()
-        logger.info("✅ 数据库表初始化完成")
+        logger.info("数据库表初始化完成")
 
 
 async def check_database_health() -> bool:
     """检查数据库健康状态"""
     try:
-        db_path = "/root/stock-picker/data/stockmind.db"
-        async with aiosqlite.connect(db_path) as db:
+        async with aiosqlite.connect(settings.DB_PATH) as db:
             await db.execute("SELECT 1")
             return True
     except Exception as e:

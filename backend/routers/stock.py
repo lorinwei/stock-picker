@@ -1,128 +1,126 @@
 """
-股票数据路由 - K线、技术指标、资金流向
+股票数据路由
 """
-import asyncio
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Query, Depends
+from services.data_service import data_service
 
-from services.data_service import DataService
-from utils.cache import cache
-
-router = APIRouter()
-data_service = DataService()
+router = APIRouter(tags=["股票数据"])
 
 
-# ============ 请求/响应模型 ============
-
-class KLineRequest(BaseModel):
-    code: str
-    ktype: str = "D"  # D=日线, W=周线, M=月线
-    start: Optional[str] = None
-    end: Optional[str] = None
-
-
-class StockInfoResponse(BaseModel):
-    code: str
-    name: str
-    industry: str
-    market_cap: float
-    pe: float
-    pb: float
-    roe: float
-    revenue_growth: float
-    profit_growth: float
-    debt_ratio: float
-    goodwill_ratio: float
-
-
-# ============ 路由 ============
-
-@router.get("/list")
+@router.get("/stock/list")
 async def get_stock_list():
-    """获取A股股票列表"""
-    cache_key = "stock_list_all"
-    cached = cache.get(cache_key)
-    if cached:
-        return {"code": 0, "data": cached, "message": "ok"}
-
+    """获取股票列表"""
     data = await data_service.get_stock_list()
-    cache.set(cache_key, data, ttl=86400)  # 缓存1天
     return {"code": 0, "data": data, "message": "ok"}
 
 
-@router.get("/{code}")
+@router.get("/stock/{code}")
 async def get_stock_info(code: str):
-    """获取股票基本信息"""
-    try:
-        info = await data_service.get_stock_info(code)
-        return {"code": 0, "data": info, "message": "ok"}
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=f"获取股票信息失败: {str(e)}")
+    """获取股票实时行情"""
+    info = await data_service.get_stock_info(code)
+    return {"code": 0, "data": info, "message": "ok"}
 
 
-@router.get("/{code}/kline")
+@router.get("/stock/{code}/kline")
 async def get_kline(
     code: str,
-    ktype: str = Query("D", description="D=日线 W=周线 M=月线"),
-    start: Optional[str] = Query(None, description="开始日期 YYYY-MM-DD"),
-    end: Optional[str] = Query(None, description="结束日期 YYYY-MM-DD"),
-    limit: int = Query(500, description="返回条数上限"),
+    ktype: str = Query("D"),
+    limit: int = Query(500),
 ):
     """获取K线数据"""
-    try:
-        if end is None:
-            end = datetime.now().strftime("%Y-%m-%d")
-        if start is None:
-            start = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
-
-        data = await data_service.get_kline(code, ktype, start, end, limit)
-        return {"code": 0, "data": data, "message": "ok"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取K线失败: {str(e)}")
+    data = await data_service.get_kline(code, ktype=ktype, limit=limit)
+    return {"code": 0, "data": data, "message": "ok"}
 
 
-@router.get("/{code}/indicators")
-async def get_indicators(
-    code: str,
-    indicators: str = Query("MA,MACD,RSI,KDJ,BOLL,ATR", description="指标列表，逗号分隔"),
-):
+@router.get("/stock/{code}/indicators")
+async def get_indicators(code: str):
     """获取技术指标"""
-    try:
-        ind_list = [x.strip() for x in indicators.split(",")]
-        data = await data_service.get_technical_indicators(code, ind_list)
-        return {"code": 0, "data": data, "message": "ok"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取指标失败: {str(e)}")
+    data = await data_service.get_technical_indicators(code)
+    return {"code": 0, "data": data, "message": "ok"}
 
 
-@router.get("/{code}/moneyflow")
+@router.get("/stock/{code}/moneyflow")
 async def get_money_flow(code: str):
     """获取资金流向"""
-    try:
-        data = await data_service.get_money_flow(code)
-        return {"code": 0, "data": data, "message": "ok"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取资金流向失败: {str(e)}")
+    data = await data_service.get_money_flow(code)
+    return {"code": 0, "data": data, "message": "ok"}
 
 
-@router.get("/benchmark/market-status")
+# ─── 以下路由兼容前端 Store 调用 ───
+
+@router.get("/market/overview")
+async def get_market_overview():
+    """大盘全景（前端 store 调用）"""
+    status = await data_service.get_market_status()
+    industry = await data_service.get_industry_leaderboard()
+
+    hs300_info = await data_service.get_stock_info("sh000300")
+    sz_info = await data_service.get_stock_info("sz399001")
+    cy_info = await data_service.get_stock_info("sz399006")
+
+    indices = [
+        {"code": "sh000300", "name": "沪深300", "current": status.get("hs300"),
+         "change": hs300_info.get("change_pct", 0), "changePct": hs300_info.get("change_pct", 0)},
+        {"code": "sz399001", "name": "深证成指", "current": sz_info.get("price"),
+         "change": sz_info.get("change_pct", 0), "changePct": sz_info.get("change_pct", 0)},
+        {"code": "sz399006", "name": "创业板指", "current": cy_info.get("price"),
+         "change": cy_info.get("change_pct", 0), "changePct": cy_info.get("change_pct", 0)},
+    ]
+    return {
+        "code": 0,
+        "data": {
+            "indices": indices,
+            "marketStatus": status.get("desc", "震荡"),
+            "positionLimit": status.get("position_limit", 0.4),
+            "industries": industry,
+        },
+        "message": "ok",
+    }
+
+
+@router.get("/stock/benchmark/market-status")
 async def get_market_status():
-    """获取市场牛熊状态（沪深300 vs 20周均线）"""
-    try:
-        data = await data_service.get_market_status()
-        return {"code": 0, "data": data, "message": "ok"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取市场状态失败: {str(e)}")
+    """市场状态"""
+    data = await data_service.get_market_status()
+    return {"code": 0, "data": data, "message": "ok"}
 
 
-@router.get("/industry/leaderboard")
+@router.get("/stock/industry/leaderboard")
 async def get_industry_leaderboard():
-    """获取行业涨跌排行"""
-    try:
-        data = await data_service.get_industry_leaderboard()
-        return {"code": 0, "data": data, "message": "ok"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取行业排行失败: {str(e)}")
+    """行业排行"""
+    data = await data_service.get_industry_leaderboard()
+    return {"code": 0, "data": data, "message": "ok"}
+
+
+# ─── 兼容前端 Store 的 /kline 端点 ───
+@router.get("/kline")
+async def get_kline_alt(
+    code: str = Query(...),
+    ktype: str = Query("D"),
+    start: str = Query(None),
+    end: str = Query(None),
+):
+    """获取K线+指标（前端 store 调用: /kline）"""
+    kline = await data_service.get_kline(code, ktype=ktype, limit=500)
+
+    # 过滤日期
+    if start:
+        kline = [k for k in kline if k.get("date", "") >= start]
+    if end:
+        kline = [k for k in kline if k.get("date", "") <= end]
+
+    indicators = await data_service.get_technical_indicators(code) if kline else {}
+    market = await data_service.get_market_status()
+
+    return {
+        "code": 0,
+        "data": {
+            "klines": kline,
+            "indicators": indicators,
+            "marketStatus": market.get("desc", "震荡"),
+        },
+        "message": "ok",
+    }

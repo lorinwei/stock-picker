@@ -1,0 +1,17 @@
+[Unit]
+Description=StockMind Picker API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/stock-picker/backend
+ExecStart=/usr/bin/python3 -m uvicorn api:app --host 0.0.0.0 --port 8800 --workers 2
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/stockpicker-api.log
+StandardError=append:/var/log/stockpicker-api.log
+
+[Install]
+WantedBy=multi-user.target

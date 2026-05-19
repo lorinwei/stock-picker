@@ -1,24 +1,24 @@
 """
-内存缓存工具 - LRU缓存，减少akshare重复请求
+内存缓存工具 — 支持动态TTL
 """
 from cachetools import TTLCache
 from typing import Any
+from utils.config import settings
 
 
-# 全局缓存实例
-cache = TTLCache(maxsize=1000, ttl=900)  # 最多1000条，15分钟过期
+# TTL 从配置读取
+_cache_cfg = settings.CACHE
+_cache = TTLCache(maxsize=_cache_cfg.get("max_size", 2000),
+                   ttl=_cache_cfg.get("data_ttl", 300))
 
 
 def get(key: str) -> Any:
-    """获取缓存"""
-    return cache.get(key)
+    return _cache.get(key)
 
 
-def set(key: str, value: Any, ttl: int = 900):
-    """设置缓存"""
-    cache[key] = value
+def set(key: str, value: Any, ttl: int = None):
+    _cache[key] = value
 
 
 def clear():
-    """清空缓存"""
-    cache.clear()
+    _cache.clear()

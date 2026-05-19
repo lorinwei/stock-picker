@@ -1,1 +1,1 @@
-from . import stock, picker, backtest, portfolio, ai
+from . import stock, picker, backtest, portfolio, ai, chan

@@ -9,38 +9,33 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   })
   const loading = ref(false)
 
-  const totalValue = computed(() => portfolio.value.totalValue)
-  const totalProfit = computed(() => portfolio.value.totalProfit)
+  const totalValue = computed(() => portfolio.value.totalValue || 0)
+  const totalProfit = computed(() => portfolio.value.totalProfit || 0)
   const positions = computed(() => portfolio.value.positions || [])
 
-  // 尚书省：获取持仓
   async function fetchPortfolio() {
     loading.value = true
     try {
-      const res = await api.get('/portfolio')
-      portfolio.value = res.data
-    } finally {
-      loading.value = false
-    }
+      const res: any = await api.get('/portfolio')
+      portfolio.value = (res as any).data || portfolio.value
+    } catch { /* ignore */ }
+    finally { loading.value = false }
   }
 
-  // 尚书省：添加持仓
   async function addPosition(code: string, name: string, shares: number, buyPrice: number) {
-    const res = await api.post('/portfolio', { code, name, shares, buyPrice })
+    const res: any = await api.post('/portfolio', { code, name, quantity: shares, buy_price: buyPrice, buy_date: new Date().toISOString().split('T')[0] })
     await fetchPortfolio()
     return res.data
   }
 
-  // 尚书省：卖出
   async function sellPosition(id: string, sellPrice: number) {
-    const res = await api.post(`/portfolio/${id}/sell`, { sellPrice })
+    const res: any = await api.post(`/portfolio/${id}/sell`, { sell_price: sellPrice, reason: 'manual' })
     await fetchPortfolio()
     return res.data
   }
 
-  // 门下省：风控检查
-  async function checkRisk(params: { action: string; code: string; price: number; quantity: number; portfolioValue: number }) {
-    const res = await api.post('/risk/check', params)
+  async function checkRisk(params: any) {
+    const res: any = await api.post('/risk/check', params || {})
     return res.data
   }
 

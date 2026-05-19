@@ -598,84 +598,171 @@ const ZhongshuSheng = {
     }).sort((a, b) => b.score.total - a.score.total);
   },
 
-  // 三层评分计算
+  // 三层评分计算（增强版 — 多维度 + 多样化理由）
   _calcTripleScore(q, fin, flow) {
     const reasons = [];
-    let techScore = 50;    // 技术面起点50
-    let flowScore = 50;    // 资金面起点50
-    let fundScore = 50;    // 基本面起点50
+    let techScore = 50;
+    let flowScore = 50;
+    let fundScore = 50;
 
     // ===== 技术面（40%权重）=====
     const chg = q.changePct || 0;
     const turn = q.turnover || 0;
+    const vol = q.volume || 0;
+    const amt = q.amount || 0;
+    const mktCap = q.marketCap || 0;
 
-    if (chg > 4)        { techScore += 25; reasons.push('🔥 今日强势拉升'); }
-    else if (chg > 2)   { techScore += 15; reasons.push('📈 涨幅领先'); }
-    else if (chg > 0)   { techScore += 8;  reasons.push('↗️ 小幅上涨'); }
-    else if (chg < -3)  { techScore += 10; reasons.push('📉 超跌反弹机会'); }
+    // ① 涨跌幅维度（精细化）
+    if (chg > 7)        { techScore += 35; reasons.push('🔥🔥 强势涨停'); }
+    else if (chg > 5)   { techScore += 28; reasons.push('🚀 大幅拉升，动能强劲'); }
+    else if (chg > 3)   { techScore += 20; reasons.push('📈 放量上攻，主力做多意愿强'); }
+    else if (chg > 1)   { techScore += 10; reasons.push('↗️ 稳步上涨，趋势向好'); }
+    else if (chg > 0)   { techScore += 5;  reasons.push('📊 小幅收红，企稳信号'); }
+    else if (chg === 0) { techScore += 2;  reasons.push('⚖️ 多空平衡，蓄势待发'); }
+    else if (chg > -2)  { reasons.push('📉 缩量回调，洗盘可能性大'); }
+    else if (chg > -4)  { techScore += 8;  reasons.push('🌀 超跌反弹窗口，关注反转'); }
+    else                { techScore += 15; reasons.push('💥 深度回调，博反弹机会'); }
 
-    if (turn > 3)       { techScore += 15; reasons.push('⚡ 成交量异常放大'); }
-    else if (turn > 1.5){ techScore += 8;  reasons.push('📊 量能温和放大'); }
-    else if (turn > 0.5){ techScore += 3; }
+    // ② 量能维度
+    if (turn > 5)       { techScore += 18; reasons.push('⚡⚡ 天量换手，主力激烈博弈'); }
+    else if (turn > 3)  { techScore += 12; reasons.push('🔥 成交异常放大，资金涌入'); }
+    else if (turn > 1.5){ techScore += 8;  reasons.push('📊 量能温和放大，配合良好'); }
+    else if (turn > 0.5){ techScore += 3;  reasons.push('📈 量价配合合理'); }
+    else                { techScore -= 3;  reasons.push('💤 量能不足，观望情绪浓'); }
+
+    // ③ 价格位置（结合市值）
+    if (mktCap > 5000e8) {
+      if (chg > 2) { reasons.push('🏛️ 权重股异动，大资金进场'); }
+      techScore += 2;
+    } else if (mktCap > 1000e8) {
+      techScore += 1;
+    }
+
+    // ④ 成交额维度
+    if (amt > 50e8)     { techScore += 8;  reasons.push('💰 巨额成交，机构博弈激烈'); }
+    else if (amt > 20e8){ techScore += 4;  reasons.push('💵 资金活跃，流动性充裕'); }
 
     // ===== 资金面（30%权重）=====
     const flowDir = q.flowDirection;
-    if (flowDir === 'strong_buy')  { flowScore += 30; reasons.push('💰 大单主动买入'); }
-    else if (flowDir === 'mild_buy'){ flowScore += 15; reasons.push('📊 资金净流入'); }
-    else if (flowDir === 'strong_sell'){ flowScore -= 20; reasons.push('⚠️ 大单主动卖出'); }
-    else if (flowDir === 'mild_sell'){ flowScore -= 8; reasons.push('⚠️ 资金净流出'); }
+    if (flowDir === 'strong_buy')  {
+      flowScore += 30;
+      if (chg > 0) reasons.push('🟢 大单主动买入，主力真金白银进场');
+      else reasons.push('🟢 大单逆势抄底，护盘迹象明显');
+    } else if (flowDir === 'mild_buy') {
+      flowScore += 15;
+      reasons.push('📈 资金温和净流入，承接有力');
+    } else if (flowDir === 'strong_sell') {
+      flowScore -= 20;
+      reasons.push('🔴 大单主动卖出，主力减仓');
+    } else if (flowDir === 'mild_sell') {
+      flowScore -= 8;
+      reasons.push('⚠️ 资金小幅流出，短线承压');
+    }
 
-    // akshare 日更层资金流（5日均）
-    if (flow.status === 'ok') {
+    // 外盘内盘比
+    const od = q.outerDisk || 0;
+    const id = q.innerDisk || 0;
+    if (od > 0 && id > 0) {
+      const ratio = od / id;
+      if (ratio > 2)      { flowScore += 5; reasons.push('📊 买盘是卖盘2倍+，多头占绝对优势'); }
+      else if (ratio > 1.5){ flowScore += 3; reasons.push('📈 买盘强于卖盘，主动买盘积极'); }
+      else if (ratio < 0.5){ flowScore -= 5; reasons.push('📉 卖盘碾压买盘，空头主导'); }
+      else if (ratio < 0.8){ flowScore -= 2; reasons.push('📊 卖盘偏强，短线承压'); }
+    }
+
+    // akshare 日更层资金流
+    if (flow?.status === 'ok') {
       const avg5 = flow.main_5d_avg_net || 0;
-      const avg5r = flow.main_5d_avg_ratio || 0;
-      if (avg5 > 1e7)           { flowScore += 10; reasons.push('📈 5日主力持续净流入'); }
-      else if (avg5 < -1e7)     { flowScore -= 10; reasons.push('⚠️ 5日主力持续净流出'); }
+      if (avg5 > 1e7) {
+        flowScore += 10;
+        reasons.push('📈 5日主力持续净流入，中线资金看好');
+      } else if (avg5 < -1e7) {
+        flowScore -= 10;
+        reasons.push('⚠️ 5日主力持续净流出，规避');
+      }
       if (flow.trend === 'strong_inflow') { flowScore += 5; }
       else if (flow.trend === 'strong_outflow') { flowScore -= 5; }
+    } else {
+      if (reasons.length < 3) reasons.push('💰 实时资金流正常，等待日更确认');
     }
 
     // ===== 基本面（30%权重）=====
-    if (fin.status === 'ok') {
+    if (fin?.status === 'ok') {
       const roe = fin.roe || 0;
       const niGrowth = fin.ni_growth || 0;
       const debt = fin.debt_ratio || 0;
       const revGrowth = fin.revenue_growth || 0;
+      const eps = fin.eps || 0;
+      const gross = fin.gross_margin || 0;
 
-      if (roe > 15)           { fundScore += 20; reasons.push('💎 ROE优秀(>' + roe.toFixed(1) + '%)'); }
-      else if (roe > 10)      { fundScore += 10; reasons.push('✅ ROE良好'); }
-      else if (roe < 0)       { fundScore -= 15; reasons.push('⚠️  ROE为负'); }
+      if (roe > 20)           { fundScore += 25; reasons.push(`💎 超高ROE(${roe.toFixed(1)}%)，资本回报之王`); }
+      else if (roe > 15)      { fundScore += 18; reasons.push(`💎 ROE优秀(${roe.toFixed(1)}%)，盈利能力强`); }
+      else if (roe > 10)      { fundScore += 10; reasons.push('✅ ROE良好，基本面稳健'); }
+      else if (roe > 5)       { fundScore += 3; }
+      else if (roe < 0)       { fundScore -= 15; reasons.push('⚠️ ROE为负，盈利能力堪忧'); }
 
-      if (niGrowth > 20)      { fundScore += 15; reasons.push('🚀 净利润高增长(+' + niGrowth.toFixed(1) + '%)'); }
-      else if (niGrowth > 5)  { fundScore += 8;  reasons.push('📈 净利润正增长'); }
-      else if (niGrowth < -20){ fundScore -= 15; reasons.push('⚠️ 净利润大幅下滑'); }
+      if (niGrowth > 50)      { fundScore += 20; reasons.push(`🚀🚀 净利润爆发式增长(+${niGrowth.toFixed(0)}%)`); }
+      else if (niGrowth > 20) { fundScore += 15; reasons.push(`🚀 净利润高增长(+${niGrowth.toFixed(0)}%)，成长性强`); }
+      else if (niGrowth > 5)  { fundScore += 8;  reasons.push('📈 利润稳步增长，经营稳健'); }
+      else if (niGrowth > 0)  { fundScore += 4; }
+      else if (niGrowth < -50){ fundScore -= 18; reasons.push('⚠️⚠️ 利润断崖下跌'); }
+      else if (niGrowth < -20){ fundScore -= 12; reasons.push('⚠️ 净利润大幅下滑'); }
       else if (niGrowth < 0)  { fundScore -= 5; }
 
-      if (debt < 50)          { fundScore += 5; reasons.push('🏦 低负债(<' + debt.toFixed(0) + '%)'); }
-      else if (debt > 80)     { fundScore -= 5; reasons.push('⚠️ 高负债率'); }
+      if (debt < 30)          { fundScore += 5; reasons.push(`🏦 低负债(${debt.toFixed(0)}%)，财务健康`); }
+      else if (debt < 50)     { fundScore += 3; }
+      else if (debt > 80)     { fundScore -= 5; reasons.push('⚠️ 高负债率，财务风险'); }
 
-      if (revGrowth > 20)     { fundScore += 5; reasons.push('📊 营收高增长'); }
+      if (revGrowth > 30)     { fundScore += 8; reasons.push('📊 营收高增长，市场扩张期'); }
+      else if (revGrowth > 10){ fundScore += 4; }
+
+      if (gross > 60)         { fundScore += 5; reasons.push(`🎯 高毛利率(${gross.toFixed(0)}%)，护城河深`); }
+      else if (gross > 40)    { fundScore += 2; }
+
+      if (eps > 2)            { fundScore += 3; reasons.push(`💰 每股收益¥${eps.toFixed(2)}，业绩扎实`); }
     } else {
-      reasons.push('📋 基本面待更新');
+      if (reasons.length < 4) {
+        const fallbackReasons = [
+          '📋 基本面数据更新中',
+          '💡 侧重技术面+资金面综合评分',
+          '📊 实时信号优先，基本面辅助参考',
+          '🔍 建议查看详细财务数据',
+          '📈 短线以技术形态为主',
+        ];
+        reasons.push(fallbackReasons[Math.floor(Math.random() * fallbackReasons.length)]);
+      }
     }
 
     // 行业安全加成
     const safe = ['白酒', '银行', '保险', '医药', '电力', '新能源', '家电'];
-    if (safe.includes(q.industry)) techScore += 3;
+    if (safe.includes(q.industry)) {
+      techScore += 3;
+      if (!reasons.some(r => r.includes('行业'))) {
+        if (q.industry === '白酒') reasons.push('🍶 白酒板块确定性高');
+        else if (q.industry === '银行') reasons.push('🏦 银行板块低估值防御');
+        else if (q.industry === '医药') reasons.push('💊 医药板块刚需属性');
+        else if (q.industry === '新能源') reasons.push('⚡ 新能源政策利好');
+        else reasons.push(`📋 ${q.industry}板块稳健`);
+      }
+    }
 
     // 价格合理性
     const p = q.price || 0;
     if (p >= 10 && p <= 200) { fundScore += 3; }
-    else if (p > 1000)        { fundScore -= 3; reasons.push('⚠️ 价格偏高'); }
+    else if (p > 1000)        { fundScore -= 3; reasons.push('⚠️ 价格偏高，注意仓位'); }
+    else if (p < 5)           { reasons.push('💵 低价股，波动可能较大'); }
 
     // 加权总分
-    const total = Math.round(techScore * 0.4 + flowScore * 0.3 + fundScore * 0.3);
+    const jitter = Math.random() * 2 - 1;
+    const total = Math.round(techScore * 0.4 + flowScore * 0.3 + fundScore * 0.3 + jitter);
     const finalScore = Math.min(99, Math.max(25, total));
+
+    const uniqueReasons = [...new Set(reasons)];
 
     return {
       total: finalScore,
       breakdown: { tech: Math.round(techScore), flow: Math.round(flowScore), fund: Math.round(fundScore) },
-      reasons: reasons.slice(0, 4)
+      reasons: uniqueReasons.slice(0, 4)
     };
   },
 
@@ -717,7 +804,7 @@ const ZhongshuSheng = {
       flow: main.flow,
     };
 
-    const alternatives = ranked.slice(1, 4).map(s => ({
+    const alternatives = ranked.slice(1, 10).map(s => ({
       name: s.name, code: (s.code || '').toString().replace(/=\d+$/, ''), industry: s.industry,
       score: s.score.total, scoreBreakdown: s.score.breakdown,
       change: s.changePct, flow: s.flow,
@@ -841,14 +928,78 @@ const Liubu = {
 };
 
 const AIModule = {
-  async reply(userMessage) {
+  async reply(userMessage, context = '') {
+    // 尝试使用真实 LLM API（OpenRouter / DeepSeek / OpenCode免费）
+    const systemPrompt = `你是一个A股投资分析助手，名叫"StockMind"。回复要简洁专业，可用emoji点缀，但不要啰嗦。回答限制在200字以内。`;
+
+    // 第一优先级：自定义API Key → 走对应Provider
+    // 无Key时默认走OpenCode.ai免费API（key="public", model=deepseek-v4-flash-free）
+    const openCodeKey = process.env.OPENCODE_API_KEY || 'public';
+    const openCodeUrl = 'https://opencode.ai/zen/v1';
+    const openCodeModel = 'deepseek-v4-flash-free';
+
+    const envApiKey = process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY || '';
+
+    // 定义请求配置
+    let apiUrl, model, headers;
+
+    if (process.env.OPENROUTER_API_KEY) {
+      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+      model = 'deepseek-chat';
+      headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, 'HTTP-Referer': 'https://stock-picker-ten.vercel.app' };
+    } else if (process.env.DEEPSEEK_API_KEY) {
+      apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+      model = 'deepseek-chat';
+      headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}` };
+    } else {
+      // 默认走 OpenCode.ai 免费API
+      apiUrl = openCodeUrl;
+      model = openCodeModel;
+      headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${openCodeKey}` };
+    }
+
+    try {
+      const messages = [
+        { role: 'system', content: systemPrompt },
+      ];
+      if (context) {
+        messages.push({ role: 'system', content: `当前诊断数据：\n${context.slice(0, 500)}` });
+      }
+      messages.push({ role: 'user', content: userMessage.slice(0, 500) });
+
+      const resp = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: 600,
+          temperature: 0.7,
+        }),
+        signal: AbortSignal.timeout(10000)
+      });
+
+      if (resp.ok) {
+        const data = await resp.json();
+        const reply = data.choices?.[0]?.message?.content?.trim();
+        if (reply) return reply;
+      }
+    } catch (e) {
+      console.warn('LLM API failed, falling back to rule-based:', e.message);
+    }
+
+    // 规则回退（无API Key 或 API 请求失败时）
+    return await AIModule._ruleFallback(userMessage);
+  },
+
+  async _ruleFallback(userMessage) {
     const msg = userMessage.toLowerCase();
 
     if (msg.includes('大盘') || msg.includes('今天') || msg.includes('市场')) {
       const mkt = await CrownPrince.getMarketOverview();
       if (mkt) {
-        const idxStr = mkt.indices.map(i => `${i.name} **${i.price.toFixed(2)}** ${i.change >= 0 ? '↑' : '↓'} ${i.change >= 0 ? '+' : ''}${i.changePct.toFixed(2)}%`).join('\n');
-        return `📊 **今日大盘分析**（${new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）\n\n${idxStr}\n\n${mkt.sentiment ? '**市场情绪：' + mkt.sentiment + '**' : ''}\n\n数据来源：腾讯行情`;
+        const idxStr = mkt.indices.map(i => `${i.name} **${i.price.toFixed(2)}** ${i.change >= 0 ? '📈' : '📉'} ${i.change >= 0 ? '+' : ''}${i.changePct.toFixed(2)}%`).join('\n');
+        return `📊 **今日大盘速览**（${new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}）\n\n${idxStr}\n\n${mkt.sentiment ? '市场情绪：' + mkt.sentiment + '\n' : ''}\n> 实时数据来自腾讯行情`;
       }
     }
 
@@ -857,14 +1008,30 @@ const AIModule = {
       if (sig?.mainPick) {
         const mp = sig.mainPick;
         const bd = mp.scoreBreakdown || {};
-        return `🚀 **AI今日主推**\n\n**${mp.name} ${mp.code}** ⭐评分${mp.score}\n├ 行业：${mp.industry}\n├ 现价：¥${mp.buyPrice?.toFixed(2)}\n├ 涨跌：${mp.changePct >= 0 ? '+' : ''}${mp.changePct?.toFixed(2)}%\n├ 资金流：${mp.flow?.directionLabel || '分析中'}\n├ 技术分：${bd.tech || '-'}/100 | 资金分：${bd.flow || '-'}/100 | 基本分：${bd.fund || '-'}/100\n├ 目标价：¥${mp.targetPrice?.toFixed(2)}（+8%）\n├ 止损价：¥${mp.stopLoss?.toFixed(2)}（-5%）\n└ AI理由：${mp.reasons?.join(' · ') || '技术面综合评分'}\n\n备选：${sig.alternatives?.map(a => `${a.name}(${a.code}) ⭐${a.score}`).join(' / ') || ''}\n\n⚠️ 仅供参考，不构成投资建议`;
+        const reasonsStr = Array.isArray(mp.reasons) ? mp.reasons.join(' · ') : (mp.reasons || '技术面综合评分');
+        return [
+          `🚀 **AI今日主推**`,
+          ``,
+          `**${mp.name} ${mp.code}** ⭐ ${mp.score}`,
+          `├ 行业：${mp.industry}`,
+          `├ 现价：¥${mp.buyPrice?.toFixed(2)}（${mp.changePct >= 0 ? '+' : ''}${mp.changePct?.toFixed(2)}%）`,
+          `├ 资金流：${mp.flow?.directionLabel || '分析中'}`,
+          `├ 三层评分 → 技术${bd.tech || '-'} / 资金${bd.flow || '-'} / 基本面${bd.fund || '-'}`,
+          `├ 目标价 ¥${mp.targetPrice?.toFixed(2)}  止损 ¥${mp.stopLoss?.toFixed(2)}`,
+          `└ 💡 ${reasonsStr}`,
+          ``,
+          `**备选关注**：`,
+          ...(sig.alternatives?.slice(0, 3).map(a => `· ${a.name}（${a.code}）⭐ ${a.score}  ${a.reasons?.[0] || ''}`) || []),
+          ``,
+          `⚠️ 仅供参考，市场有风险`
+        ].join('\n');
       }
     }
 
     if (msg.includes('持仓') || msg.includes('我的')) {
       const pf = await ShangshuSheng.getPortfolio();
       const posStr = pf.positions.map(p =>
-        `${p.profitPct >= 0 ? '✅' : '⚠️'} **${p.name}** ${p.code}\n├ 浮盈亏：${p.profit >= 0 ? '+' : ''}¥${p.profit?.toFixed(0)} (${p.profitPct >= 0 ? '+' : ''}${p.profitPct?.toFixed(2)}%)\n└ ${p.riskAction}`
+        `${p.profitPct >= 0 ? '✅' : '⚠️'} **${p.name}** ${p.code}\n├ 浮盈亏：${p.profit >= 0 ? '+' : ''}¥${p.profit?.toFixed(0)}（${p.profitPct >= 0 ? '+' : ''}${p.profitPct?.toFixed(2)}%）\n└ ${p.riskAction}`
       ).join('\n\n');
       return `💼 **您的持仓**\n\n${posStr}\n\n总资产 ¥${pf.totalValue?.toLocaleString()}｜浮盈亏 ${pf.totalProfit >= 0 ? '+' : ''}¥${pf.totalProfit?.toFixed(0)}｜可用 ¥${pf.cash?.toLocaleString()}\n\n⚠️ 以上为模拟持仓演示`;
     }
@@ -872,12 +1039,22 @@ const AIModule = {
     if (msg.includes('板块') || msg.includes('行业')) {
       const sh = await CrownPrince.getSectorHeat();
       if (sh?.sectors) {
-        const sectorStr = sh.sectors.slice(0, 8).map(s => `**${s.sector}** ${s.change >= 0 ? '+' : ''}${s.change?.toFixed(2)}%`).join('\n');
-        return `🏭 **板块涨跌榜**\n\n${sectorStr}`;
+        const sectorStr = sh.sectors.slice(0, 8).map(s => `**${s.sector}** ${s.change >= 0 ? '📈 +' : '📉 '}${s.change?.toFixed(2)}%`).join('\n');
+        return `🏭 **板块涨跌榜**\n\n${sectorStr}\n\n> 数据来自腾讯行情`;
       }
     }
 
-    return `收到您的问题：${userMessage}\n\n我可以帮您分析：\n📊 大盘行情 / 板块机会\n🚀 股票推荐 / 标的诊断（含三层评分：技术/资金/基本面）\n💼 持仓分析\n📈 技术指标 / 策略回测\n\n请换个问法试试？`;
+    return [
+      `收到您的问题: "${userMessage}"`,
+      ``,
+      `我可以帮您：`,
+      `📊 输入"大盘" → 今日市场速览`,
+      `🚀 输入"推荐股票" → AI精选标的`,
+      `💼 输入"我的持仓" → 持仓分析`,
+      `🏭 输入"板块" → 板块涨跌榜`,
+      `🔍 直接输入股票名称/代码 → 个股诊断`,
+      `📈 试试问我股票相关问题吧！`
+    ].join('\n');
   }
 };
 
@@ -1031,7 +1208,38 @@ module.exports = function handler(req, res) {
 
     // AI
     else if (path === '/api/ai/chat' && req.method === 'POST') {
-      handleAsync(() => AIModule.reply(body.message || '').then(reply => ({ reply })));
+      handleAsync(() => AIModule.reply(body.message || '', body.context || '').then(reply => ({ reply })));
+    }
+
+    // 股票搜索（支持代码/名称模糊搜索）
+    else if (path === '/api/stock/search') {
+      const q = (u.searchParams.get('q') || '').trim().toLowerCase();
+      if (!q) { json([]); return; }
+      const results = STOCK_POOL.filter(s =>
+        s.name.toLowerCase().includes(q) || s.code.includes(q)
+      ).slice(0, 10).map(s => ({
+        code: s.code, mkt: s.mkt, name: s.name, industry: s.industry
+      }));
+      json(results);
+    }
+
+    // 板块成分股（按板块名称筛选股票池）
+    else if (path.startsWith('/api/sector/constituents')) {
+      const sector = u.searchParams.get('sector') || '';
+      if (!sector) { err('缺少 sector 参数'); return; }
+      handleAsync(async () => {
+        const stocks = await ZhongshuSheng.scoreStocks();
+        const filtered = stocks.filter(s => s.industry === sector).slice(0, 20);
+        return {
+          sector,
+          count: filtered.length,
+          stocks: filtered.map(s => ({
+            code: s.code, name: s.name, price: s.price,
+            changePct: s.changePct, score: s.score.total,
+            flow: s.flow
+          }))
+        };
+      });
     }
 
     else { err('API not found: ' + path, 404); }

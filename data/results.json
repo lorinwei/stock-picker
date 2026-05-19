@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-19T09:00:34.280708",
+  "date": "2026-05-19",
+  "market": {
+    "status": "bull",
+    "status_text": "🐂 牛市",
+    "hs300_price": 4833.524,
+    "ma20_weeks": 4683.49,
+    "change_20w": 5.51,
+    "position_limit": 0.8
+  },
+  "total_screened": 0,
+  "signals": [],
+  "pool_sizes": {
+    "价值池": 0,
+    "趋势池": 0,
+    "资金池": 0
+  }
+}

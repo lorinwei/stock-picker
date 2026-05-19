@@ -1,37 +1,23 @@
 import axios from 'axios'
 import type { ApiResponse } from '@/types'
 
-// StockMind V2 三省六部 API
-const WORKER_URL = 'https://stock-picker-nr27mao1i-lorinweis-projects.vercel.app';
+// 后端地址 — 开发时通过 Vite 代理走 /api
+// 生产环境改为部署地址
+const API_BASE = '/api'
 
 const api = axios.create({
-  baseURL: `${WORKER_URL}/api`,
+  baseURL: API_BASE,
   timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  headers: { 'Content-Type': 'application/json' }
 })
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    // Add auth token if exists
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// Response interceptor
+// 响应拦截器：直接返回 data
 api.interceptors.response.use(
-  (response) => response.data as ApiResponse<any>,
-  (error) => {
-    const message = error.response?.data?.message || error.message || '网络错误'
-    console.error('API Error:', message)
-    return Promise.reject(error)
+  (res) => res.data as any,
+  (err) => {
+    const msg = err.response?.data?.message || err.message || '网络错误'
+    console.error('API Error:', msg)
+    return Promise.reject(new Error(msg))
   }
 )
 

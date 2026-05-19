@@ -1,12 +1,690 @@
-2026-05-13 16:00:00 | INFO     | jobs.daily_pick:run_daily_pick:15 - 🔔 开始执行每日选股任务...
-2026-05-13 16:00:00 | INFO     | services.picker_service:generate_signals:62 - 🔍 开始选股流水线...
-2026-05-13 16:00:00 | INFO     | services.picker_service:generate_signals:65 - Step 1: 获取全量数据...
-2026-05-13 16:00:00 | ERROR    | services.data_service:get_stock_list:34 - 获取股票列表失败: 'TTLCache' object has no attribute 'set'
-2026-05-13 16:00:00 | INFO     | jobs.daily_pick:run_daily_pick:25 - 📊 选股完成: 0 个信号
-2026-05-13 16:00:00 | WARNING  | jobs.daily_pick:run_daily_pick:32 - ⚠️ 今日无选股信号
-2026-05-13 16:30:00 | INFO     | jobs.portfolio_check:run_portfolio_check:16 - 🔔 开始执行持仓检查任务...
-2026-05-13 16:30:00 | INFO     | jobs.portfolio_check:run_portfolio_check:26 - 📭 当前无持仓
-2026-05-13 21:00:00 | INFO     | jobs.daily_summary:run_daily_summary:15 - 🔔 开始生成每日复盘...
-2026-05-13 21:00:00 | INFO     | jobs.daily_summary:run_daily_summary:23 - 📝 复盘生成完成，字数: 97
-2026-05-13 21:00:00 | WARNING  | services.notifier:send_text:28 - 飞书Webhook未配置，跳过推送
-2026-05-13 21:00:00 | INFO     | jobs.daily_summary:run_daily_summary:28 - ✅ 复盘已推送至飞书
+2026-05-18 16:00:00 | INFO     | jobs.daily_pick:run_daily_pick:15 - 🔔 开始执行每日选股任务...
+2026-05-18 16:00:00 | INFO     | services.picker_service:generate_signals:62 - 🔍 开始选股流水线...
+2026-05-18 16:00:00 | INFO     | services.picker_service:generate_signals:65 - Step 1: 获取全量数据...
+2026-05-18 16:00:00 | ERROR    | services.data_service:get_stock_list:34 - 获取股票列表失败: 'TTLCache' object has no attribute 'set'
+2026-05-18 16:00:00 | INFO     | jobs.daily_pick:run_daily_pick:25 - 📊 选股完成: 0 个信号
+2026-05-18 16:00:00 | WARNING  | jobs.daily_pick:run_daily_pick:32 - ⚠️ 今日无选股信号
+2026-05-18 16:30:00 | INFO     | jobs.portfolio_check:run_portfolio_check:16 - 🔔 开始执行持仓检查任务...
+2026-05-18 16:30:00 | INFO     | jobs.portfolio_check:run_portfolio_check:26 - 📭 当前无持仓
+2026-05-18 21:00:00 | INFO     | jobs.daily_summary:run_daily_summary:15 - 🔔 开始生成每日复盘...
+2026-05-18 21:00:00 | INFO     | jobs.daily_summary:run_daily_summary:23 - 📝 复盘生成完成，字数: 97
+2026-05-18 21:00:00 | WARNING  | services.notifier:send_text:28 - 飞书Webhook未配置，跳过推送
+2026-05-18 21:00:00 | INFO     | jobs.daily_summary:run_daily_summary:28 - ✅ 复盘已推送至飞书
+2026-05-19 12:33:04 | INFO    | main:35 | 🚀 StockMind v2.0.0 starting ...
+2026-05-19 12:33:04 | INFO    | main:36 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 12:33:04 | INFO    | main:37 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:33:04 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:33:04 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 12:33:05 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 12:33:05 | INFO    | main:69 | ✅ StockMind 启动完成
+2026-05-19 12:33:38 | INFO    | main:35 | 🚀 StockMind v2.0.0 starting ...
+2026-05-19 12:33:38 | INFO    | main:36 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 12:33:38 | INFO    | main:37 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:33:38 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:33:38 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 12:33:38 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 12:33:38 | INFO    | main:69 | ✅ StockMind 启动完成
+2026-05-19 12:33:47 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:33:49 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:33:51 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:33:51 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:34:01 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=4&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 12:34:02 | INFO    | services.picker_service:33 | 🔍 开始缠论选股流水线...
+2026-05-19 12:34:02 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:34:04 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:34:05 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:34:05 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:34:05 | INFO    | services.picker_service:37 | 市场状态: 震荡 (仓位上限40%)
+2026-05-19 12:34:05 | INFO    | services.picker_service:43 | ⚖️ 震荡市，标准选股
+2026-05-19 12:34:05 | INFO    | services.picker_service:46 | Step 1: 价值筛选...
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300308: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600584: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688525: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002384: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300502: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688008: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300274: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh603986: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002281: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300394: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688256: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300476: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688012: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh601138: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz000988: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz301308: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz000021: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600522: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh601991: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz001309: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300136: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300058: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300433: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002131: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600487: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600118: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002371: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688041: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002475: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688981: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300750: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300302: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300604: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002050: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688521: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002156: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300475: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600183: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002428: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002407: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688820: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh603601: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh601728: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002149: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002463: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz301171: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002208: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300657: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688126: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300442: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300166: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh603019: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600578: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300857: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600105: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600111: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600186: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz000938: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz000066: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002185: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002709: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600703: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600396: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300408: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688808: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002600: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600900: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh601899: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300390: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002460: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688072: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600519: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300017: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002008: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300395: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688017: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002837: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688498: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002466: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh600330: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002409: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh601869: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002929: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300666: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300285: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300059: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002031: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300757: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688048: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300570: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz000977: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002436: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300620: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz300548: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz002015: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsz000657: 腾讯格式异常
+2026-05-19 12:34:06 | WARNING | services.data_service:96 | 行情获取失败 szsh688313: 腾讯格式异常
+2026-05-19 12:34:07 | WARNING | services.data_service:96 | 行情获取失败 szsh600176: 腾讯格式异常
+2026-05-19 12:34:07 | WARNING | services.data_service:96 | 行情获取失败 szsh688234: 腾讯格式异常
+2026-05-19 12:34:07 | WARNING | services.data_service:96 | 行情获取失败 szsh603629: 腾讯格式异常
+2026-05-19 12:34:07 | INFO    | services.picker_service:52 |   → 候选池A: 0只
+2026-05-19 12:34:20 | ERROR   | services.chanservice:641 | 缠论分析异常: name 'zstop' is not defined
+2026-05-19 12:34:20 | ERROR   | services.chanservice:641 | 缠论分析异常: name 'zstop' is not defined
+2026-05-19 12:47:41 | INFO    | main:35 | 🚀 StockMind v2.0.0 starting ...
+2026-05-19 12:47:41 | INFO    | main:36 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 12:47:41 | INFO    | main:37 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:47:41 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:47:41 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 12:47:41 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 12:47:41 | INFO    | main:69 | ✅ StockMind 启动完成
+2026-05-19 12:47:51 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:47:52 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:47:54 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:47:54 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:47:59 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 12:48:17 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:48:18 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:48:20 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:48:20 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:48:26 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 12:53:34 | INFO    | main:35 | 🚀 StockMind v2.0.0 starting ...
+2026-05-19 12:53:34 | INFO    | main:36 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 12:53:34 | INFO    | main:37 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:53:34 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 12:53:34 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 12:53:34 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 12:53:34 | INFO    | main:69 | ✅ StockMind 启动完成
+2026-05-19 12:55:05 | INFO    | services.picker_service:33 | 🔍 开始缠论选股流水线...
+2026-05-19 12:55:06 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:55:06 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:55:07 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:55:07 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:55:09 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:55:09 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:55:14 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 12:55:14 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:55:14 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:55:14 | INFO    | services.picker_service:37 | 市场状态: 震荡 (仓位上限40%)
+2026-05-19 12:55:14 | INFO    | services.picker_service:43 | ⚖️ 震荡市，标准选股
+2026-05-19 12:55:14 | INFO    | services.picker_service:46 | Step 1: 价值筛选...
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300308: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600584: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688525: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002384: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688012: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz000988: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh603986: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300394: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300502: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688008: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002281: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300274: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688256: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300476: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh601138: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh601991: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz301308: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz000021: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz001309: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600522: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300058: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300433: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300136: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002131: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600487: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600118: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002371: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002475: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688041: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300750: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688981: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688521: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300302: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300604: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002050: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600183: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300475: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688820: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002428: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002156: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002407: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh603601: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh601728: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002149: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002208: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002463: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300657: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz301171: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300442: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688126: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh603019: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300166: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300857: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600578: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600186: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600105: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600111: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300408: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz000066: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz000938: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002185: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600703: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002709: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600396: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002600: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688808: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002460: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh601899: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600900: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688072: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300390: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300017: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600519: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002008: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688017: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300395: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002837: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002466: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688498: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh601869: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002409: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002929: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300666: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600330: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300285: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300059: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300757: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002031: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688048: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300548: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300620: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002015: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz000977: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz002436: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz300570: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688313: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsz000657: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh688234: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh600176: 腾讯格式异常
+2026-05-19 12:55:15 | WARNING | services.data_service:96 | 行情获取失败 szsh603629: 腾讯格式异常
+2026-05-19 12:55:15 | INFO    | services.picker_service:52 |   → 候选池A: 0只
+2026-05-19 12:55:41 | INFO    | services.picker_service:33 | 🔍 开始缠论选股流水线...
+2026-05-19 12:55:42 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:55:42 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:55:43 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:55:43 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:55:45 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:55:45 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:55:45 | INFO    | services.picker_service:37 | 市场状态: 震荡 (仓位上限40%)
+2026-05-19 12:55:45 | INFO    | services.picker_service:43 | ⚖️ 震荡市，标准选股
+2026-05-19 12:55:45 | INFO    | services.picker_service:46 | Step 1: 价值筛选...
+2026-05-19 12:55:45 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:55:45 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:55:50 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 12:55:50 | WARNING | services.data_service:96 | 行情获取失败 szsz002384: 腾讯格式异常
+2026-05-19 12:55:50 | WARNING | services.data_service:96 | 行情获取失败 szsz300274: 腾讯格式异常
+2026-05-19 12:55:50 | WARNING | services.data_service:96 | 行情获取失败 szsh603986: 腾讯格式异常
+2026-05-19 12:55:50 | WARNING | services.data_service:96 | 行情获取失败 szsz300502: 腾讯格式异常
+2026-05-19 12:55:50 | WARNING | services.data_service:96 | 行情获取失败 szsz300394: 腾讯格式异常
+2026-05-19 12:55:50 | WARNING | services.data_service:96 | 行情获取失败 szsh688008: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600584: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688525: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688012: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300308: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002281: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688256: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300476: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh601138: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz301308: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz000021: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz000988: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh601991: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600522: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz001309: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300058: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300136: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002131: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300433: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600118: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002371: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688041: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600487: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002475: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688981: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300750: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688521: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300302: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300604: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002050: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300475: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600183: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688820: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002428: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002156: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002407: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh603601: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh601728: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002208: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002463: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz301171: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002149: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300442: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688126: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300657: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh603019: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300166: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300857: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600578: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600105: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600186: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600111: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300408: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002185: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz000938: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600703: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz000066: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002709: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688808: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600396: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002600: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002460: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh601899: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600900: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300390: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688072: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600519: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002008: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300395: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300017: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688017: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002837: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002466: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh601869: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002929: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600330: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300666: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688498: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300285: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002409: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300059: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300757: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002031: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688048: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300548: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300570: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz000977: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002015: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz300620: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688313: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz002436: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsz000657: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh688234: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh600176: 腾讯格式异常
+2026-05-19 12:55:51 | WARNING | services.data_service:96 | 行情获取失败 szsh603629: 腾讯格式异常
+2026-05-19 12:55:51 | INFO    | services.picker_service:52 |   → 候选池A: 0只
+2026-05-19 12:55:53 | WARNING | services.data_service:96 | 行情获取失败 szsearch: 腾讯格式异常
+2026-05-19 12:56:02 | WARNING | services.data_service:96 | 行情获取失败 szsearch: 腾讯格式异常
+2026-05-19 12:56:08 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 12:56:10 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 12:56:12 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 12:56:12 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 12:56:17 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 13:00:02 | INFO    | main:36 |   StockMind v2.0.0 starting ...
+2026-05-19 13:00:02 | INFO    | main:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 13:00:02 | INFO    | main:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:00:02 | INFO    | main:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 13:00:02 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:00:02 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 13:00:02 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 13:00:02 | INFO    | main:92 | ✅ StockMind 启动完成  http://localhost:8000
+2026-05-19 13:00:02 | INFO    | jobs.scheduler:29 | 定时任务已关闭
+2026-05-19 13:00:02 | INFO    | main:98 | 应用已关闭
+2026-05-19 13:00:06 | INFO    | jobs.scheduler:29 | 定时任务已关闭
+2026-05-19 13:00:06 | INFO    | main:75 | 应用已关闭
+2026-05-19 13:00:08 | INFO    | main:36 |   StockMind v2.0.0 starting ...
+2026-05-19 13:00:08 | INFO    | main:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 13:00:08 | INFO    | main:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:00:08 | INFO    | main:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 13:00:08 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:00:08 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 13:00:08 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 13:00:08 | INFO    | main:92 | ✅ StockMind 启动完成  http://localhost:8000
+2026-05-19 13:00:16 | INFO    | main:36 |   StockMind v2.0.0 starting ...
+2026-05-19 13:00:16 | INFO    | main:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 13:00:16 | INFO    | main:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:00:16 | INFO    | main:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 13:00:16 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:00:16 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 13:00:16 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 13:00:16 | INFO    | main:92 | ✅ StockMind 启动完成  http://localhost:8000
+2026-05-19 13:00:20 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 13:00:23 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 13:00:25 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 13:00:25 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 13:00:31 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 13:08:29 | INFO    | main:36 |   StockMind v2.0.0 starting ...
+2026-05-19 13:08:29 | INFO    | main:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 13:08:29 | INFO    | main:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:08:29 | INFO    | main:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 13:08:29 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:08:29 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 13:08:30 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 13:08:30 | INFO    | main:99 | ✅ StockMind 启动完成  http://localhost:8000
+2026-05-19 13:08:33 | WARNING | services.data_service:178 | K线失败(1/3) sh000300: 新浪返回空
+2026-05-19 13:08:35 | WARNING | services.data_service:178 | K线失败(2/3) sh000300: 新浪返回空
+2026-05-19 13:08:37 | WARNING | services.data_service:178 | K线失败(3/3) sh000300: 新浪返回空
+2026-05-19 13:08:37 | WARNING | services.data_service:334 | 市场状态获取失败: 沪深300数据不足
+2026-05-19 13:08:43 | WARNING | services.data_service:353 | 行业排行失败: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-05-19 13:55:23 | INFO    | main:36 |   StockMind v2.0.0 starting ...
+2026-05-19 13:55:23 | INFO    | main:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 13:55:23 | INFO    | main:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:55:23 | INFO    | main:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 13:55:23 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 13:55:23 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 13:55:23 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 13:55:23 | INFO    | main:99 | ✅ StockMind 启动完成  http://localhost:8000
+2026-05-19 13:58:06 | WARNING | services.data_service:191 | K线失败(1/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 13:58:07 | WARNING | services.data_service:191 | K线失败(2/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 13:58:09 | WARNING | services.data_service:191 | K线失败(3/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 13:58:24 | WARNING | services.data_service:380 | 行业排行不可用: 
+2026-05-19 13:58:26 | INFO    | services.picker_service:40 | 🔍 开始缠论选股流水线...
+2026-05-19 13:58:26 | INFO    | services.picker_service:44 | 市场状态: 牛市 (仓位上限80%)
+2026-05-19 13:58:26 | INFO    | services.picker_service:53 | Step 1: 价值筛选...
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300308: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300274: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh688008: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh688256: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz002384: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz002281: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300394: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh688525: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300502: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh600584: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh603986: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh688012: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300476: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz000988: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh600522: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz301308: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh601138: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh600487: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz001309: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz000021: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh688521: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300750: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh688041: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300136: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsh601991: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz002475: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300058: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz300433: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz002371: 腾讯格式异常
+2026-05-19 13:58:26 | WARNING | services.data_service:96 | 行情获取失败 szsz002131: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688981: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600183: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600118: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300604: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300475: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002156: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300302: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002050: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002428: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688820: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002407: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh601728: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002149: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh603601: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz301171: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300442: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002463: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh603019: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600519: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002208: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688126: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300857: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz000938: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002008: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688808: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz000066: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600105: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600111: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh601899: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300166: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300390: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600186: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002709: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300657: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300408: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600703: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002600: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002185: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600900: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688498: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300395: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300017: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002460: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688072: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh601869: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600578: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600498: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688017: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600396: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300548: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002837: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002409: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002466: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh603893: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300059: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz000977: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688313: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600176: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688048: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh601318: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300285: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300620: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300757: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh600330: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh688629: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz002929: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300666: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz300570: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsh603083: 腾讯格式异常
+2026-05-19 13:58:27 | WARNING | services.data_service:96 | 行情获取失败 szsz000792: 腾讯格式异常
+2026-05-19 13:58:27 | INFO    | services.picker_service:59 |   → 候选池A: 0只
+2026-05-19 20:30:15 | INFO    | __main__:36 |   StockMind v2.0.0 starting ...
+2026-05-19 20:30:15 | INFO    | __main__:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 20:30:15 | INFO    | __main__:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 20:30:15 | INFO    | __main__:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 20:30:17 | INFO    | __mp_main__:36 |   StockMind v2.0.0 starting ...
+2026-05-19 20:30:17 | INFO    | __mp_main__:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 20:30:17 | INFO    | __mp_main__:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 20:30:17 | INFO    | __mp_main__:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 20:30:17 | INFO    | main:36 |   StockMind v2.0.0 starting ...
+2026-05-19 20:30:17 | INFO    | main:37 |   数据目录: C:\Users\linwx\Desktop\fsdownload\stock-picker\data
+2026-05-19 20:30:17 | INFO    | main:38 |   数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 20:30:17 | INFO    | main:66 |   前端静态资源: C:\Users\linwx\Desktop\fsdownload\stock-picker\frontend\dist
+2026-05-19 20:30:17 | INFO    | utils.database:12 | 初始化数据库: C:\Users\linwx\Desktop\fsdownload\stock-picker\data\stockmind.db
+2026-05-19 20:30:17 | INFO    | utils.database:80 | 数据库表初始化完成
+2026-05-19 20:30:17 | INFO    | jobs.scheduler:24 | 定时任务已启动
+2026-05-19 20:30:17 | INFO    | main:99 | ✅ StockMind 启动完成  http://localhost:8000
+2026-05-19 20:30:36 | WARNING | services.data_service:191 | K线失败(1/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 20:30:36 | INFO    | services.picker_service:40 | 🔍 开始缠论选股流水线...
+2026-05-19 20:30:36 | WARNING | services.data_service:191 | K线失败(1/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 20:30:38 | WARNING | services.data_service:191 | K线失败(2/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 20:30:38 | WARNING | services.data_service:191 | K线失败(2/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 20:30:39 | WARNING | services.data_service:191 | K线失败(3/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 20:30:39 | WARNING | services.data_service:191 | K线失败(3/3) sh000300: name 'symbol_final' is not defined
+2026-05-19 20:30:40 | INFO    | services.picker_service:44 | 市场状态: 牛市 (仓位上限80%)
+2026-05-19 20:30:40 | INFO    | services.picker_service:53 | Step 1: 价值筛选...
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300308: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002384: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688008: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300274: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688525: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688012: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688256: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh603986: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz000988: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600522: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300502: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002281: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300394: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600584: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600487: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688041: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh601138: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300476: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz301308: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688521: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300750: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz000021: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz001309: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh601991: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002475: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688981: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300136: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300058: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300433: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300604: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002371: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600183: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002131: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002156: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002050: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300475: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002428: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688126: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz000066: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600118: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688820: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300302: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300442: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002407: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh603083: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz000938: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002149: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh603019: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688808: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002008: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz301171: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh601728: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002463: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600519: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh603601: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300857: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600105: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600111: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh601899: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300059: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz000977: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002600: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002709: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600703: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300017: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002185: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688498: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300408: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300166: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300390: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600498: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh601869: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300395: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688629: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002837: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002460: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600900: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300548: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002208: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600396: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002466: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002409: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh601318: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688072: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688017: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh603893: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600176: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh603629: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688313: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300657: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600186: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600578: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh688048: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300620: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300285: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300757: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz000792: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz002929: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsh600330: 腾讯格式异常
+2026-05-19 20:30:40 | WARNING | services.data_service:96 | 行情获取失败 szsz300666: 腾讯格式异常
+2026-05-19 20:30:40 | INFO    | services.picker_service:59 |   → 候选池A: 0只
+2026-05-19 20:30:48 | WARNING | services.data_service:380 | 行业排行不可用: HTTPSConnectionPool(host='17.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=4&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A90+t%3A2+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf124%2Cf107%2Cf104%2Cf105%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf222 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))

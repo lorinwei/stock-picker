@@ -10,6 +10,12 @@ from typing import Dict, List, Optional
 import yaml
 from loguru import logger
 
+from utils.config import settings
+
+
+# 全局实例
+ai_service = None
+
 
 class AIService:
     """MiniMax AI服务"""
@@ -243,3 +249,7 @@ class MyStrategy(Strategy):
             end_date=end_date,
         )
         return result
+
+
+# 全局实例
+ai_service = AIService()

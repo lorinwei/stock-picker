@@ -1,29 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NCard, NButton, NSpace, NInput, NSelect, NScrollbar, NEmpty, NSpin } from 'naive-ui'
-import type { AIRequest, AIResponse } from '@/types'
+import { NCard, NButton, NSpace, NInput, NScrollbar, NEmpty, NSpin } from 'naive-ui'
+import api from '@/api'
 
 const messages = ref<{ role: 'user' | 'assistant'; content: string; time: string }[]>([])
 const inputMessage = ref('')
-const selectedType = ref<'strategy' | 'diagnosis' | 'review'>('diagnosis')
 const loading = ref(false)
 
-const typeOptions = [
-  { label: '策略问诊', value: 'diagnosis' },
-  { label: '策略生成', value: 'strategy' },
-  { label: '持仓复盘', value: 'review' },
-]
-
 const quickQuestions = [
-  '分析当前持仓风险',
-  '推荐低估值的白马股',
-  'MACD金叉选股策略回测',
-  '如何设置止损点位',
+  '今天大盘怎么样',
+  'AI推荐什么股票',
+  '我的持仓怎么样',
+  '最近哪些板块强',
 ]
 
 async function sendMessage() {
   if (!inputMessage.value.trim()) return
-  
+
   const userMsg = {
     role: 'user' as const,
     content: inputMessage.value,
@@ -35,20 +28,22 @@ async function sendMessage() {
   loading.value = true
 
   try {
-    // TODO: call API
-    await new Promise(r => setTimeout(r, 1000))
-    const responses: Record<string, string> = {
-      '分析当前持仓风险': '根据当前持仓分析，您的组合最大风险敞口集中在白酒板块，建议适当分散配置，考虑配置银行股降低相关性。整体风险在可控范围内，当前VAR为3.2%。',
-      '推荐低估值的白马股': '根据筛选条件，推荐以下低估白马股：\n1. 招商银行(600036) PE: 8.5，估值处于历史低位\n2. 中国平安(601318) PE: 9.2，寿险改革接近尾声\n3. 万科A(000002) PE: 7.8，行业龙头，安全边际高',
-      'MACD金叉选股策略回测': 'MACD金叉策略在近一年回测中表现良好：\n- 总收益: +18.5%\n- 年化收益: 18.5%\n- 最大回撤: 12.3%\n- 胜率: 62.5%\n建议配合KDJ指标使用，过滤假信号。',
-      '如何设置止损点位': '止损设置建议：\n1. 固定止损：买入价下方8-10%\n2. 移动止损：跟随股价创新高逐步上移\n3. 时间止损：持有超过20个交易日未达预期止损\n4. 逻辑止损：跌破关键支撑位止损',
-    }
+    const res = await api.post('/ai/chat', { message: question })
+    // 拦截器返回 { code, data: { reply } }，所以 res.data 是 { reply }
+    const replyText = (res as any).data?.reply || (res as any).reply || '抱歉，AI暂时无法回答这个问题。'
+    // 把 markdown 的 ** 替换成更轻量的格式（前端用 pre-wrap 显示）
     const botMsg = {
       role: 'assistant' as const,
-      content: responses[question] || '正在分析您的问题，请稍候...',
+      content: replyText,
       time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
     }
     messages.value.push(botMsg)
+  } catch (e: any) {
+    messages.value.push({
+      role: 'assistant' as const,
+      content: `查询失败：${e?.message || '网络错误'}`,
+      time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+    })
   } finally {
     loading.value = false
   }
@@ -62,15 +57,6 @@ function handleQuickQuestion(q: string) {
 
 <template>
   <div class="h-[calc(100vh-120px)] flex flex-col">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-bold">AI助手</h2>
-      <NSelect
-        v-model:value="selectedType"
-        :options="typeOptions"
-        style="width: 140px"
-      />
-    </div>
-
     <!-- Chat Area -->
     <NCard class="flex-1 card-base flex flex-col overflow-hidden">
       <NScrollbar class="flex-1 p-4">
