@@ -870,6 +870,11 @@ const ShangshuSheng = {
     { id: "pos_003", code: "300750", mkt: "0", name: "宁德时代", shares: 100, cost: 215.00, currentPrice: 210.80, marketValue: 21080, profit: -420, profitPct: -1.95, buyDate: "2026-05-07", stopLoss: 204, industry: "新能源" },
   ],
   _cash: 400587,
+  _initialCash: 1000000,
+  _paperPortfolio: [],
+  _paperCash: 1000000,
+  _paperInitialCash: 1000000,
+  _paperTrades: [],
   async getPortfolio() {
     await Promise.all(this._portfolio.map(async p => {
       const quote = await CrownPrince.getQuote(`${p.mkt}.${p.code}`);
@@ -901,6 +906,124 @@ const ShangshuSheng = {
     pos.currentPrice = sellPrice;
     this._portfolio.splice(idx, 1);
     return pos;
+  },
+
+  async getPaperAccount() {
+    const positions = await this.getPaperPositions();
+    const totalValue = positions.reduce((sum, p) => sum + p.marketValue, 0) + this._paperCash;
+    const totalCost = this._paperInitialCash;
+    const totalProfit = totalValue - totalCost;
+    return {
+      id: 'paper_account',
+      type: 'paper',
+      initialCash: this._paperInitialCash,
+      cash: this._paperCash,
+      availableCash: this._paperCash,
+      totalValue,
+      totalCost,
+      totalProfit,
+      profitPct: +((totalProfit / totalCost) * 100).toFixed(2),
+      positionCount: positions.length,
+      maxPositions: 5,
+      updateTime: new Date().toISOString()
+    };
+  },
+
+  async getPaperPositions() {
+    await Promise.all(this._paperPortfolio.map(async p => {
+      const quote = await CrownPrince.getQuote(`${p.mkt}.${p.code}`);
+      if (quote) {
+        p.currentPrice = quote.price;
+        p.marketValue = p.shares * quote.price;
+        p.profit = (quote.price - p.cost) * p.shares;
+        p.profitPct = +((quote.price - p.cost) / p.cost * 100).toFixed(2);
+      }
+    }));
+    return this._paperPortfolio.map(p => ({
+      ...p,
+      riskLevel: p.profitPct > 3 ? 'safe' : p.profitPct > 0 ? 'safe' : p.profitPct > -3 ? 'warning' : 'danger',
+      riskAction: p.profitPct > 0 ? '持有' : p.profitPct > -3 ? '观察' : '建议止损'
+    }));
+  },
+
+  async paperBuy(code, mkt, name, shares, buyPrice) {
+    const cost = shares * buyPrice;
+    if (cost > this._paperCash) {
+      throw new Error('可用资金不足');
+    }
+    const existing = this._paperPortfolio.find(p => p.code === code);
+    if (existing) {
+      existing.shares += shares;
+      existing.cost = (existing.cost * (existing.shares - shares) + buyPrice * shares) / existing.shares;
+    } else {
+      const id = `paper_pos_${Date.now()}`;
+      const pos = {
+        id, code, mkt: mkt || '1', name, shares, cost: buyPrice,
+        currentPrice: buyPrice, marketValue: shares * buyPrice,
+        profit: 0, profitPct: 0, buyDate: new Date().toISOString().split('T')[0],
+        stopLoss: buyPrice * 0.95, industry: STOCK_POOL.find(s => s.code === code)?.industry || '其他'
+      };
+      this._paperPortfolio.push(pos);
+    }
+    this._paperCash -= cost;
+    this._paperTrades.push({
+      id: `trade_${Date.now()}`,
+      type: 'BUY',
+      code, name, shares, price: buyPrice,
+      amount: cost,
+      time: new Date().toISOString()
+    });
+    return this._paperPortfolio.find(p => p.code === code);
+  },
+
+  async paperSell(id, sellPrice, shares) {
+    const idx = this._paperPortfolio.findIndex(p => p.id === id);
+    if (idx === -1) return null;
+    const pos = this._paperPortfolio[idx];
+    const sellShares = shares || pos.shares;
+    if (sellShares > pos.shares) {
+      throw new Error('卖出股数超过持仓');
+    }
+    const sellAmount = sellShares * sellPrice;
+    this._paperCash += sellAmount;
+    pos.profit = (sellPrice - pos.cost) * sellShares;
+    pos.profitPct = +((sellPrice - pos.cost) / pos.cost * 100).toFixed(2);
+    pos.currentPrice = sellPrice;
+    if (sellShares >= pos.shares) {
+      this._paperPortfolio.splice(idx, 1);
+    } else {
+      pos.shares -= sellShares;
+      pos.marketValue = pos.shares * pos.currentPrice;
+    }
+    this._paperTrades.push({
+      id: `trade_${Date.now()}`,
+      type: 'SELL',
+      code: pos.code,
+      name: pos.name,
+      shares: sellShares,
+      price: sellPrice,
+      amount: sellAmount,
+      profit: pos.profit,
+      time: new Date().toISOString()
+    });
+    return pos;
+  },
+
+  async resetPaperAccount(initialCash) {
+    this._paperPortfolio = [];
+    this._paperCash = initialCash || this._paperInitialCash;
+    this._paperTrades = [];
+    return this.getPaperAccount();
+  },
+
+  async setInitialCash(initialCash) {
+    if (initialCash < 0) {
+      throw new Error('初始资金不能为负数');
+    }
+    const diff = initialCash - this._paperInitialCash;
+    this._paperInitialCash = initialCash;
+    this._paperCash += diff;
+    return this.getPaperAccount();
   }
 };
 
@@ -1240,6 +1363,31 @@ module.exports = function handler(req, res) {
           }))
         };
       });
+    }
+
+    // 模拟账户
+    else if (path === '/api/paper/account' && req.method === 'GET') {
+      handleAsync(() => ShangshuSheng.getPaperAccount());
+    }
+    else if (path === '/api/paper/positions' && req.method === 'GET') {
+      handleAsync(() => ShangshuSheng.getPaperPositions());
+    }
+    else if (path === '/api/paper/buy' && req.method === 'POST') {
+      const { code, mkt, name, shares, buyPrice } = body;
+      handleAsync(() => ShangshuSheng.paperBuy(code, mkt, name, shares, buyPrice));
+    }
+    else if (path.match(/^\/api\/paper\/([^/]+)\/sell$/) && req.method === 'POST') {
+      const id = path.split('/')[3];
+      const { sellPrice, shares } = body;
+      handleAsync(() => ShangshuSheng.paperSell(id, sellPrice, shares));
+    }
+    else if (path === '/api/paper/reset' && req.method === 'POST') {
+      const { initialCash } = body;
+      handleAsync(() => ShangshuSheng.resetPaperAccount(initialCash));
+    }
+    else if (path === '/api/paper/set-initial-cash' && req.method === 'POST') {
+      const { initial_cash } = body;
+      handleAsync(() => ShangshuSheng.setInitialCash(initial_cash));
     }
 
     else { err('API not found: ' + path, 404); }
